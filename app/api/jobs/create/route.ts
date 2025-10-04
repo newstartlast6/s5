@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Storage } from '@google-cloud/storage';
-import { ExecutionsClient } from '@google-cloud/run';
+import { JobsClient } from '@google-cloud/run';
 
 export async function POST(req: NextRequest) {
   try {
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
         .eq('id', job.id);
       
       // Use Google Cloud Run SDK to trigger the job
-      const executionsClient = new ExecutionsClient({
+      const jobsClient = new JobsClient({
         projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
         credentials: JSON.parse(
           Buffer.from(process.env.GOOGLE_CLOUD_CREDENTIALS_BASE64!, 'base64').toString()
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       const jobName = `projects/${projectId}/locations/${region}/jobs/sora-remover-service`;
 
       // Run the job with environment variables
-      const [operation] = await executionsClient.runJob({
+      const operation: any = await jobsClient.runJob({
         name: jobName,
         overrides: {
           containerOverrides: [{
@@ -105,12 +105,11 @@ export async function POST(req: NextRequest) {
               { name: 'JOB_ID', value: job.id },
             ],
           }],
+          timeout: { seconds: 3600 },
         },
-      });
+      } as any);
 
-      // Wait for the operation to complete and get the result
-      const [response] = await operation.promise();
-      const executionName = response.name || null;
+      const executionName = operation[0]?.name || operation.name || null;
       
       if (executionName) {
         await supabase
