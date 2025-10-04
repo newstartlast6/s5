@@ -4,6 +4,12 @@
 A Next.js 15 application designed to remove watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
 ## Recent Changes
+- **Oct 4, 2025**: Fixed user profile and job history not updating immediately after login
+  - Issue: User profile icon and job history didn't update immediately after login; required tab switching to see changes
+  - Root cause: Auth state change listener wasn't firing immediately when tab didn't have focus
+  - Solution: Added `refreshUserState()` function that manually fetches user, jobs, and subscription status immediately after successful login
+  - The auth dialog's onSuccess callback now calls refreshUserState() to force an immediate UI update
+  - User profile icon and job history now appear instantly after login without needing to switch tabs
 - **Oct 4, 2025**: Successfully re-imported and configured project for Replit environment
   - Imported fresh clone from GitHub repository
   - Installed all npm dependencies (404 packages) successfully

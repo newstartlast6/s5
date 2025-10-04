@@ -572,6 +572,21 @@ export default function Home() {
     }
   }, []);
 
+  const refreshUserState = useCallback(async () => {
+    const supabase = createClient();
+    if (supabase) {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      setUser(currentUser);
+      if (currentUser) {
+        setIsLoadingJobs(true);
+        await Promise.all([
+          fetchJobs(),
+          fetchSubscriptionStatus()
+        ]);
+      }
+    }
+  }, [fetchJobs, fetchSubscriptionStatus]);
+
   useEffect(() => {
     setIsMounted(true);
     
@@ -1080,7 +1095,12 @@ export default function Home() {
       <AuthDialog 
         open={showAuthDialog} 
         onOpenChange={setShowAuthDialog}
-        onSuccess={createJobAndTrigger}
+        onSuccess={async () => {
+          await refreshUserState();
+          if (gcsPath && uploadedFileName) {
+            createJobAndTrigger();
+          }
+        }}
       />
 
       <PricingDialog
