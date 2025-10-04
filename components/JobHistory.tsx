@@ -1,10 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Clock, CheckCircle2, XCircle, Loader2, Download, Play, AlertCircle } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Loader2, Download, Play, AlertCircle, Zap, Award } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -20,6 +26,7 @@ export interface VideoJob {
   output_url?: string;
   gcs_output_path?: string;
   thumbnail_url?: string;
+  inpaint_method?: string;
 }
 
 interface JobHistoryProps {
@@ -201,6 +208,42 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                       >
                         {statusConfig.label}
                       </Badge>
+                      {job.inpaint_method && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Badge 
+                                variant="outline" 
+                                className={cn(
+                                  "border-2 flex items-center gap-1",
+                                  job.inpaint_method === 'lama' 
+                                    ? "border-purple-500/30 text-purple-400" 
+                                    : "border-blue-500/30 text-blue-400"
+                                )}
+                              >
+                                {job.inpaint_method === 'lama' ? (
+                                  <>
+                                    <Award className="w-3 h-3" />
+                                    Quality
+                                  </>
+                                ) : (
+                                  <>
+                                    <Zap className="w-3 h-3" />
+                                    Fast
+                                  </>
+                                )}
+                              </Badge>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm">
+                                {job.inpaint_method === 'lama' 
+                                  ? 'Higher quality, takes more time to process' 
+                                  : 'Quick processing with good results'}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle, User as UserIcon, LogOut, Sparkles, Wand2, ChevronDown, MousePointerClick, Download, ArrowRight } from "lucide-react";
+import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle, User as UserIcon, LogOut, Sparkles, Wand2, ChevronDown, MousePointerClick, Download, ArrowRight, Check, Zap, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -151,9 +151,11 @@ interface VideoPreviewProps {
   onRemove: () => void;
   onRemoveWatermark: () => void;
   isSubmitting?: boolean;
+  selectedMethod: 'fast' | 'quality';
+  onMethodChange: (method: 'fast' | 'quality') => void;
 }
 
-function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = false }: VideoPreviewProps) {
+function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = false, selectedMethod, onMethodChange }: VideoPreviewProps) {
   const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -200,7 +202,41 @@ function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = fa
             </video>
           </div>
           
-          <div className="p-6 space-y-3">
+          <div className="p-6 space-y-4">
+            <div className="flex gap-3">
+              <button
+                onClick={() => onMethodChange('fast')}
+                disabled={isSubmitting}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all duration-200",
+                  selectedMethod === 'fast' 
+                    ? "border-primary bg-primary/10 text-primary" 
+                    : "border-border bg-card/50 text-muted-foreground hover:border-primary/50",
+                  isSubmitting && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <Zap className="w-5 h-5" />
+                <span className="font-semibold">Fast</span>
+                {selectedMethod === 'fast' && <Check className="w-5 h-5" />}
+              </button>
+              
+              <button
+                onClick={() => onMethodChange('quality')}
+                disabled={isSubmitting}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 transition-all duration-200",
+                  selectedMethod === 'quality' 
+                    ? "border-primary bg-primary/10 text-primary" 
+                    : "border-border bg-card/50 text-muted-foreground hover:border-primary/50",
+                  isSubmitting && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <Award className="w-5 h-5" />
+                <span className="font-semibold">Quality</span>
+                {selectedMethod === 'quality' && <Check className="w-5 h-5" />}
+              </button>
+            </div>
+            
             <Button
               onClick={onRemoveWatermark}
               className="w-full relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -568,6 +604,7 @@ export default function Home() {
     freeVideosRemaining: number;
     hasUnlimitedAccess: boolean;
   } | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<'fast' | 'quality'>('fast');
 
   const fetchSubscriptionStatus = useCallback(async () => {
     try {
@@ -919,7 +956,7 @@ export default function Home() {
         body: JSON.stringify({
           gcsPath,
           filename: uploadedFileName,
-          inpaintMethod: 'opencv',
+          inpaintMethod: selectedMethod === 'fast' ? 'opencv' : 'lama',
           thumbnailUrl: thumbnailUrl || null,
         }),
       });
@@ -976,7 +1013,7 @@ export default function Home() {
     } finally {
       setIsSubmittingJob(false);
     }
-  }, [gcsPath, uploadedFileName, thumbnailUrl, fetchJobs, handleRemoveFile]);
+  }, [gcsPath, uploadedFileName, thumbnailUrl, fetchJobs, handleRemoveFile, selectedMethod]);
 
   const handleRemoveWatermark = useCallback(async () => {
     posthog.capture('watermark_removal_requested', {
@@ -1084,6 +1121,8 @@ export default function Home() {
                   onRemove={handleRemoveFile}
                   onRemoveWatermark={handleRemoveWatermark}
                   isSubmitting={isSubmittingJob}
+                  selectedMethod={selectedMethod}
+                  onMethodChange={setSelectedMethod}
                 />
               ) : (
                 <div className="p-8 space-y-8">

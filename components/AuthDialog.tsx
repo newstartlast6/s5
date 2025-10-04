@@ -90,7 +90,14 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
     setError("");
     posthog.capture('auth_provider_clicked', { provider: 'google' });
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+      if (result?.error) {
+        setError(result.error);
+        toast.error("Google sign-in failed", {
+          description: result.error,
+        });
+        setIsLoading(false);
+      }
     } catch (err) {
       const errorMsg = "Google sign-in failed. Please try again.";
       setError(errorMsg);
