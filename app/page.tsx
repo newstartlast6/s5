@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DemoComponent } from "@/components/DemoComponent";
+import { AuthDialog } from "@/components/AuthDialog";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const MAX_DURATION = 30;
@@ -271,6 +272,7 @@ export default function Home() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [gcsPath, setGcsPath] = useState<string>("");
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   const validateFile = useCallback(async (file: File): Promise<string | null> => {
     if (file.size > MAX_FILE_SIZE) {
@@ -423,7 +425,7 @@ export default function Home() {
               <VideoPreview
                 videoUrl={videoUrl}
                 onRemove={handleRemoveFile}
-                onRemoveWatermark={() => alert('Watermark removal feature coming soon!')}
+                onRemoveWatermark={() => setShowAuthDialog(true)}
               />
             </div>
             
@@ -433,6 +435,8 @@ export default function Home() {
           </div>
         </main>
       )}
+
+      <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
     </div>
   );
 }
