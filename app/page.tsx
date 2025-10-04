@@ -283,9 +283,10 @@ function ErrorMessage({ message }: ErrorMessageProps) {
 interface HeaderProps {
   user: User | null;
   onSignOut: () => void;
+  hasActiveSubscription?: boolean;
 }
 
-function Header({ user, onSignOut }: HeaderProps) {
+function Header({ user, onSignOut, hasActiveSubscription }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-6 md:px-8 flex h-16 items-center justify-between">
@@ -309,7 +310,14 @@ function Header({ user, onSignOut }: HeaderProps) {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Account</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium leading-none">Account</p>
+                    {hasActiveSubscription && (
+                      <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary/20 text-primary border border-primary/40">
+                        Pro
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs leading-none text-muted-foreground truncate">
                     {user.email}
                   </p>
@@ -533,6 +541,19 @@ export default function Home() {
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
   const [jobs, setJobs] = useState<VideoJob[]>([]);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+
+  const fetchSubscriptionStatus = useCallback(async () => {
+    try {
+      const response = await fetch('/api/subscription/status');
+      if (response.ok) {
+        const data = await response.json();
+        setHasActiveSubscription(data.hasSubscription || false);
+      }
+    } catch (error) {
+      console.error('Error fetching subscription status:', error);
+    }
+  }, []);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -581,6 +602,7 @@ export default function Home() {
         if (user) {
           setIsLoadingJobs(true);
           fetchJobs();
+          fetchSubscriptionStatus();
         }
       });
 
@@ -590,9 +612,11 @@ export default function Home() {
         if (newUser) {
           setIsLoadingJobs(true);
           fetchJobs();
+          fetchSubscriptionStatus();
         } else {
           setJobs([]);
           setIsLoadingJobs(false);
+          setHasActiveSubscription(false);
         }
       });
 
@@ -600,7 +624,7 @@ export default function Home() {
     } else {
       setIsLoadingUser(false);
     }
-  }, [fetchJobs]);
+  }, [fetchJobs, fetchSubscriptionStatus]);
 
   useEffect(() => {
     if (!user) return;
@@ -612,6 +636,7 @@ export default function Home() {
   const handleSignOut = async () => {
     await signOut();
     setUser(null);
+    setHasActiveSubscription(false);
   };
 
   const validateFile = useCallback(async (file: File): Promise<string | null> => {
@@ -918,7 +943,7 @@ export default function Home() {
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-background">
-        <Header user={user} onSignOut={handleSignOut} />
+        <Header user={user} onSignOut={handleSignOut} hasActiveSubscription={hasActiveSubscription} />
       </div>
     );
   }

@@ -27,13 +27,22 @@ export async function POST(request: Request) {
 
     // Basic validation
     if (!userId) {
-      return NextResponse.json({ success: false, message: "userId is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "userId is required" },
+        { status: 400 },
+      );
     }
     if (!email) {
-      return NextResponse.json({ success: false, message: "email is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "email is required" },
+        { status: 400 },
+      );
     }
     if (!pId && process.env.NODE_ENV !== "development") {
-      return NextResponse.json({ success: false, message: "product id (pId) is required" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "product id (pId) is required" },
+        { status: 400 },
+      );
     }
 
     // Verify user session
@@ -43,15 +52,19 @@ export async function POST(request: Request) {
     } = await supabase.auth.getSession();
 
     if (authError || !session) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     // Choose product id, apiKey and url
     const productId =
       // process.env.NODE_ENV === "development" ? "prod_2oNGxUhor4fV6yAVNga2kf" : pId!;
-     process.env.NODE_ENV === "development" ? "prod_7Z12RwqNonvvu0VTpWzQM" : pId!;
+      process.env.NODE_ENV === "development"
+        ? "prod_1FVYSkTv3ur6jDliBI2Mt"
+        : pId!;
 
-      
     const apiKey =
       process.env.NODE_ENV === "development"
         ? "creem_test_xLoOsMLvJXVpo84dzVOj1"
@@ -96,7 +109,7 @@ export async function POST(request: Request) {
           status: res.status,
           error: data ?? res.statusText,
         },
-        { status: res.status }
+        { status: res.status },
       );
     }
 
@@ -106,7 +119,7 @@ export async function POST(request: Request) {
         success: true,
         checkout: data as CheckoutSession,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (err) {
     // Network/other errors
@@ -116,7 +129,7 @@ export async function POST(request: Request) {
         success: false,
         error: err instanceof Error ? err.message : String(err),
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
