@@ -31,28 +31,47 @@ interface JobHistoryProps {
 export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
   const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
 
-  const handleDownload = (job: VideoJob) => {
+  const handleDownload = async (job: VideoJob) => {
     if (!job.output_url) return;
     
     setDownloadingJobId(job.id);
     posthog.capture('job_download_clicked', { job_id: job.id, filename: job.filename });
 
-    const link = document.createElement('a');
-    link.href = job.output_url;
-    link.download = job.filename || 'video.mp4';
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast.success('Download started', {
-      description: 'Your video download has been initiated.'
-    });
-    
-    setTimeout(() => {
+    try {
+      const response = await fetch(job.output_url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'video/*',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch video');
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = job.filename || 'video.mp4';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      URL.revokeObjectURL(blobUrl);
+      
+      toast.success('Download complete', {
+        description: 'Your video has been downloaded.'
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Download failed', {
+        description: 'Could not download the video. Please try again.'
+      });
+    } finally {
       setDownloadingJobId(null);
-    }, 1000);
+    }
   };
 
   const getStatusConfig = (status: string) => {
