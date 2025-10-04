@@ -4,6 +4,13 @@
 A Next.js 15 application designed to remove watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
 ## Recent Changes
+- **Oct 4, 2025**: Configured for Replit environment
+  - Successfully imported from GitHub and configured for Replit
+  - Installed all npm dependencies (404 packages)
+  - Verified Next.js dev server running on port 5000 with 0.0.0.0 host
+  - Confirmed proxy compatibility with allowedDevOrigins: ["*"] in next.config.ts
+  - Set up deployment configuration for autoscale (build: npm run build, start: npm start)
+  - Application running successfully with all features functional
 - **Oct 4, 2025**: Fixed webhook to correctly handle monthly subscriptions and added Pro User badge
   - Fixed webhook handler to treat monthly subscriptions correctly in test mode (removed prod_1FVYSkTv3ur6jDliBI2Mt from lifetime plans)
   - Monthly subscription (prod_1FVYSkTv3ur6jDliBI2Mt) now grants 1000 videos, not unlimited
@@ -27,6 +34,13 @@ I prefer that the agent focuses on completing tasks efficiently.
 
 ## System Architecture
 The application is built with Next.js 15 (App Router), React 19, and styled using Tailwind CSS 4, emphasizing a dark-theme only design with teal accents. Radix UI components are used for enhanced UI elements. Form handling is managed by React Hook Form with Zod validation.
+
+**Replit Configuration:**
+- **Dev Server:** Runs on port 5000 with host 0.0.0.0 (configured in package.json)
+- **Proxy Compatibility:** Next.js configured with allowedDevOrigins: ["*"] and serverActions.allowedOrigins: ["*"] for Replit iframe proxy
+- **Deployment:** Autoscale deployment configured with build (npm run build) and start (npm start) commands
+- **Environment:** All required environment variables in .env.local (Supabase, Google Cloud, Creem.io, PostHog)
+- **Workflow:** Single "Server" workflow running `npm run dev`
 
 **UI/UX Decisions:**
 - **Dark Theme Only:** A forced dark theme with teal accents for a modern and clean aesthetic.
