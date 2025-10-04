@@ -4,20 +4,23 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations. The application uses Supabase for authentication and Google Cloud Storage for video uploads.
 
 ## Recent Changes
+- **Oct 4, 2025**: Fresh GitHub import successfully configured for Replit environment
+  - Installed all npm dependencies (404 packages)
+  - Updated package.json scripts to run on port 5000 (dev and start commands)
+  - Configured Next.js with allowedDevOrigins: "*" for Replit proxy support (already present)
+  - Set up "Server" workflow running `npm run dev` on port 5000 with webview output
+  - Configured autoscale deployment (build: npm run build, run: npm start)
+  - Verified watermark remover landing page is fully functional
+  - Dark theme with teal accents displaying correctly
+  - Drag-and-drop video upload interface operational
+  - Project import completed successfully
+
 - **Oct 4, 2025**: Enhanced landing page with How It Works, FAQ, and Footer sections
   - **How It Works section**: Beautiful card-based layout showcasing AI Detection and Smart Removal features with animated icons (Sparkles and Wand2)
   - **FAQ section**: Accordion-style Frequently Asked Questions covering Sora video compatibility, video quality, processing time, and privacy/security
   - **Footer section**: Professional 3-column footer with branding, features list, and support links
   - Modern, stylish design with teal accents, backdrop blur effects, hover animations, and smooth transitions
   - Sections only display on landing page (when no video/jobs are present), maintaining clean split-view UX when working with videos
-  
-- **Oct 4, 2025**: Fresh GitHub import successfully set up in Replit environment
-  - Installed all npm dependencies (397 packages)
-  - Configured Next.js to work with Replit proxy (allowedDevOrigins: "*" for iframe support)
-  - Dev server running on 0.0.0.0:5000 as required
-  - Deployment configured with autoscale (build: npm run build, run: npm start)
-  - Verified watermark remover UI is fully functional with dark theme and drag-and-drop upload
-  - Application ready for use
   
 - **Oct 4, 2025**: Fixed split view persistence during signup flow
   - **Always split view after upload**: Once a video is uploaded, the screen remains in split view permanently
