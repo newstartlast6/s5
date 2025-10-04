@@ -4,11 +4,14 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern UI with drag-and-drop file upload, video validation, and theme switching.
 
 ## Recent Changes
-- **Oct 4, 2025**: Project created and deployed to Replit
-  - Implemented watermark remover landing page with file upload functionality
-  - Added theme toggle with dark/light mode support using next-themes
-  - Configured for Replit deployment (server on 0.0.0.0:5000)
-  - Set up file validation (100MB max, 30 seconds max duration, MP4/MOV/AVI/WebM formats)
+- **Oct 4, 2025**: GitHub import successfully configured for Replit
+  - Installed npm dependencies (192 packages)
+  - Configured Next.js for Replit proxy (allowedDevOrigins: "*")
+  - Verified dev server running on 0.0.0.0:5000
+  - Configured autoscale deployment (build: npm run build, run: npm start)
+  - Watermark remover landing page with drag-and-drop file upload operational
+  - Theme toggle with dark/light mode support working
+  - File validation configured (100MB max, 30 seconds max duration, MP4/MOV/AVI/WebM formats)
 
 ## Project Architecture
 - **Framework**: Next.js 15.5.2 with App Router
@@ -44,6 +47,14 @@ A Next.js 15 watermark remover application built with React 19, TypeScript, and 
 - Theme provider configured for system preference detection
 
 ## Environment Configuration
-- Configured for Replit deployment
-- Server actions allowed from all origins for proxy compatibility
-- Development server accessible via Replit web preview
+- **Dev Server**: Runs on 0.0.0.0:5000 (Replit requirement)
+- **Proxy Config**: allowedDevOrigins set to "*" for Replit iframe support
+- **Server Actions**: Allowed from all origins for proxy compatibility
+- **Deployment**: Autoscale deployment configured with npm build/start
+- **Workflow**: Single "Server" workflow running `npm run dev`
+
+## Setup Instructions
+1. Dependencies are already installed via `npm install`
+2. Dev server starts automatically via workflow
+3. Access app through Replit web preview
+4. For deployment, click "Publish" button in Replit UI
