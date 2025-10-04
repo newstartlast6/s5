@@ -424,38 +424,38 @@ function FAQ() {
         </div>
 
         <Accordion type="single" collapsible className="max-w-3xl mx-auto space-y-4">
-          <AccordionItem value="item-1" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
-            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+          <AccordionItem value="item-1" className="border-0 border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline py-6">
               Does this work with all Sora videos?
             </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground leading-relaxed">
+            <AccordionContent className="text-muted-foreground leading-relaxed pb-6">
               Yes! Our tool is specifically designed to detect and remove Sora watermarks from any video, regardless of resolution or length.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-2" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
-            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+          <AccordionItem value="item-2" className="border-0 border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline py-6">
               Will the video quality be affected?
             </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground leading-relaxed">
+            <AccordionContent className="text-muted-foreground leading-relaxed pb-6">
               No. We use advanced AI inpainting techniques that remove the watermark while preserving the original video quality. The result is indistinguishable from the original unwatermarked footage.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-3" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
-            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+          <AccordionItem value="item-3" className="border-0 border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline py-6">
               How long does processing take?
             </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground leading-relaxed">
+            <AccordionContent className="text-muted-foreground leading-relaxed pb-6">
               Processing time varies based on video length and complexity, typically ranging from 30 seconds to 2 minutes. You'll see real-time progress updates during processing.
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="item-4" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
-            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+          <AccordionItem value="item-4" className="border-0 border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm overflow-hidden">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline py-6">
               Is this tool private and secure?
             </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground leading-relaxed">
+            <AccordionContent className="text-muted-foreground leading-relaxed pb-6">
               Absolutely. Your videos are automatically deleted after 24 hours and we don't store any personal information. The tool is completely private and safe to use.
             </AccordionContent>
           </AccordionItem>
