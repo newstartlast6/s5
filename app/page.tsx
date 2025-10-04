@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DemoComponent } from "@/components/DemoComponent";
 import { AuthDialog } from "@/components/AuthDialog";
+import { JobHistory } from "@/components/JobHistory";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -540,7 +541,53 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Header user={user} onSignOut={handleSignOut} />
       
-      {!videoUrl ? (
+      {user ? (
+        <main className="h-[calc(100vh-4rem)]">
+          <div className="grid grid-cols-2 h-full divide-x divide-border">
+            <div className="relative overflow-y-auto">
+              <div className="p-8 space-y-8">
+                <div>
+                  <h2 className="text-3xl font-bold text-foreground mb-2">
+                    Upload Video
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Remove watermarks from your videos instantly
+                  </p>
+                </div>
+
+                {!videoUrl ? (
+                  <div className="space-y-4">
+                    {!selectedFile && !isProcessing && (
+                      <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
+                    )}
+                    
+                    {error && <ErrorMessage message={error} />}
+                    
+                    {isProcessing && selectedFile && (
+                      <UploadingState
+                        progress={uploadProgress}
+                        fileName={selectedFile.name}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <VideoPreview
+                      videoUrl={videoUrl}
+                      onRemove={handleRemoveFile}
+                      onRemoveWatermark={handleRemoveWatermark}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="relative bg-card/20">
+              <JobHistory />
+            </div>
+          </div>
+        </main>
+      ) : (
         <main className="container mx-auto px-6 md:px-8">
           <section className="py-16 md:py-24 text-center relative">
             <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -551,41 +598,18 @@ export default function Home() {
               <span className="text-foreground">Free </span>
               <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8" data-testid="text-hero-subtitle">
               <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.
             </p>
-          </section>
 
-          <section className="max-w-3xl mx-auto pb-16">
-            {!selectedFile && !isProcessing && (
-              <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
-            )}
-            
-            {error && <ErrorMessage message={error} />}
-            
-            {isProcessing && selectedFile && (
-              <UploadingState
-                progress={uploadProgress}
-                fileName={selectedFile.name}
-              />
-            )}
+            <Button 
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6"
+              onClick={() => setShowAuthDialog(true)}
+            >
+              Get Started - Sign In
+            </Button>
           </section>
-        </main>
-      ) : (
-        <main className="h-[calc(100vh-4rem)]">
-          <div className="grid grid-cols-2 h-full divide-x divide-border">
-            <div className="relative">
-              <VideoPreview
-                videoUrl={videoUrl}
-                onRemove={handleRemoveFile}
-                onRemoveWatermark={handleRemoveWatermark}
-              />
-            </div>
-            
-            <div className="relative animate-in fade-in slide-in-from-right duration-500">
-              <DemoComponent />
-            </div>
-          </div>
         </main>
       )}
 
