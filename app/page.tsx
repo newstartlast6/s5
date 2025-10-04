@@ -548,7 +548,9 @@ export default function Home() {
       const response = await fetch('/api/subscription/status');
       if (response.ok) {
         const data = await response.json();
+        console.log('Subscription status response:', data);
         setHasActiveSubscription(data.hasSubscription || false);
+        console.log('hasActiveSubscription set to:', data.hasSubscription || false);
       }
     } catch (error) {
       console.error('Error fetching subscription status:', error);
@@ -593,12 +595,6 @@ export default function Home() {
       window.history.replaceState({}, '', window.location.pathname);
     }
 
-    const checkoutSuccess = window.location.search.includes('checkout_id=') || 
-                           window.location.search.includes('session_id=');
-    if (checkoutSuccess) {
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-
     const supabase = createClient();
     
     if (supabase) {
@@ -609,6 +605,15 @@ export default function Home() {
           setIsLoadingJobs(true);
           fetchJobs();
           fetchSubscriptionStatus();
+          
+          const checkoutSuccess = window.location.search.includes('checkout_id=') || 
+                                 window.location.search.includes('session_id=');
+          if (checkoutSuccess) {
+            window.history.replaceState({}, '', window.location.pathname);
+            setTimeout(() => {
+              fetchSubscriptionStatus();
+            }, 2000);
+          }
         }
       });
 
@@ -636,13 +641,11 @@ export default function Home() {
     if (!user) return;
     
     const jobsInterval = setInterval(fetchJobs, 10000);
-    const subscriptionInterval = setInterval(fetchSubscriptionStatus, 5000);
     
     return () => {
       clearInterval(jobsInterval);
-      clearInterval(subscriptionInterval);
     };
-  }, [user, fetchJobs, fetchSubscriptionStatus]);
+  }, [user, fetchJobs]);
 
   const handleSignOut = async () => {
     await signOut();

@@ -7,7 +7,8 @@ A Next.js 15 application designed to remove watermarks from videos. It features 
 - **Oct 4, 2025**: Fixed video clearing, Pro badge refresh, and hardcoded plan IDs
   - Fixed video clearing on signup: Video now only clears after the job appears in job history with indefinite polling using exponential backoff (300ms to 1000ms)
   - Job history properly refreshes before video clearing, ensuring users see their job immediately after signup
-  - Pro badge now appears after subscribing: Added 5-second subscription status polling and checkout return detection
+  - Pro badge now appears after subscribing: Subscription status refreshes on page load and after checkout return (no polling)
+  - Pro badge location: Displays in the user dropdown menu (click user icon in top-right corner)
   - Fixed hardcoded plan_id values: Replaced all hardcoded IDs with NEXT_PUBLIC_CREEM_MONTHLY_PLAN_ID and NEXT_PUBLIC_CREEM_LIFETIME_PLAN_ID environment variables in webhook and checkout session
 - **Oct 4, 2025**: Configured for Replit environment
   - Successfully imported from GitHub and configured for Replit
