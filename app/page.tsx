@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle, User as UserIcon, LogOut, Sparkles, Wand2, ChevronDown } from "lucide-react";
+import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle, User as UserIcon, LogOut, Sparkles, Wand2, ChevronDown, MousePointerClick, Download, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -334,38 +334,77 @@ function HowItWorks() {
           How It Works
         </h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Our AI-powered technology intelligently detects and removes Sora watermarks while preserving video quality
+          Remove watermarks from your videos in three simple steps
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardContent className="p-8 relative">
-            <div className="mb-6 relative inline-block">
-              <div className="absolute inset-0 blur-xl bg-primary/50 animate-pulse" />
-              <Sparkles className="w-12 h-12 text-primary relative z-10" />
-            </div>
-            <h3 className="text-2xl font-bold mb-3 text-foreground">AI Detection</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Our advanced AI automatically detects Sora watermarks in your video, regardless of their position, size, or transparency level.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="max-w-6xl mx-auto relative">
+        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent -translate-y-1/2 z-0" />
+        
+        <div className="grid md:grid-cols-3 gap-8 relative z-10">
+          <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:scale-105 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <CardContent className="p-8 relative text-center">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center font-bold text-2xl text-primary-foreground border-4 border-background shadow-lg">
+                1
+              </div>
+              
+              <div className="mt-8 mb-6 relative inline-block">
+                <div className="absolute inset-0 blur-2xl bg-primary/60 animate-pulse" />
+                <div className="relative bg-primary/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto">
+                  <Upload className="w-10 h-10 text-primary relative z-10" />
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold mb-3 text-foreground">Upload Video</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Drag and drop your video file or click to browse. Supports MP4, MOV, AVI, and WebM formats.
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardContent className="p-8 relative">
-            <div className="mb-6 relative inline-block">
-              <div className="absolute inset-0 blur-xl bg-primary/50 animate-pulse" />
-              <Wand2 className="w-12 h-12 text-primary relative z-10" />
-            </div>
-            <h3 className="text-2xl font-bold mb-3 text-foreground">Smart Removal</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Using intelligent inpainting algorithms, we seamlessly remove the watermark while maintaining the original video quality and frame consistency.
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:scale-105 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <CardContent className="p-8 relative text-center">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center font-bold text-2xl text-primary-foreground border-4 border-background shadow-lg">
+                2
+              </div>
+              
+              <div className="mt-8 mb-6 relative inline-block">
+                <div className="absolute inset-0 blur-2xl bg-primary/60 animate-pulse" />
+                <div className="relative bg-primary/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto">
+                  <MousePointerClick className="w-10 h-10 text-primary relative z-10" />
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold mb-3 text-foreground">Remove Watermark</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Click the "Remove Watermark" button and our AI will process your video in seconds.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:scale-105 transition-all duration-300">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <CardContent className="p-8 relative text-center">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center font-bold text-2xl text-primary-foreground border-4 border-background shadow-lg">
+                3
+              </div>
+              
+              <div className="mt-8 mb-6 relative inline-block">
+                <div className="absolute inset-0 blur-2xl bg-primary/60 animate-pulse" />
+                <div className="relative bg-primary/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto">
+                  <Download className="w-10 h-10 text-primary relative z-10" />
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold mb-3 text-foreground">Download Result</h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Once processing is complete, download your clean, watermark-free video instantly.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </section>
   );
