@@ -129,9 +129,10 @@ interface FilePreviewProps {
   onRemove: () => void;
   onProcess: () => void;
   isProcessing: boolean;
+  uploadProgress: number;
 }
 
-function FilePreview({ file, onRemove, onProcess, isProcessing }: FilePreviewProps) {
+function FilePreview({ file, onRemove, onProcess, isProcessing, uploadProgress }: FilePreviewProps) {
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -169,10 +170,10 @@ function FilePreview({ file, onRemove, onProcess, isProcessing }: FilePreviewPro
               {isProcessing ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processing...
+                  Uploading {uploadProgress}%
                 </>
               ) : (
-                "Remove Watermark"
+                "Upload to Cloud"
               )}
             </Button>
             <Button
@@ -183,6 +184,63 @@ function FilePreview({ file, onRemove, onProcess, isProcessing }: FilePreviewPro
               data-testid="button-remove"
             >
               <X className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        
+        {isProcessing && uploadProgress > 0 && (
+          <div className="mt-4">
+            <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+              <div 
+                className="bg-primary h-full transition-all duration-300 ease-out"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+interface VideoPreviewProps {
+  videoUrl: string;
+  onRemove: () => void;
+}
+
+function VideoPreview({ videoUrl, onRemove }: VideoPreviewProps) {
+  return (
+    <Card className="mt-6 border-primary/20 bg-card/50 backdrop-blur">
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Video Preview</h3>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onRemove}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+            <video 
+              src={videoUrl}
+              controls
+              className="w-full h-full"
+              preload="metadata"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button
+              onClick={() => window.open(videoUrl, '_blank')}
+              className="flex-1"
+            >
+              Download Video
             </Button>
           </div>
         </div>
@@ -227,6 +285,9 @@ export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [videoUrl, setVideoUrl] = useState<string>("");
+  const [gcsPath, setGcsPath] = useState<string>("");
 
   const validateFile = useCallback(async (file: File): Promise<string | null> => {
     if (file.size > MAX_FILE_SIZE) {
@@ -261,6 +322,8 @@ export default function Home() {
   const handleFileSelect = useCallback(async (file: File) => {
     setError("");
     setSelectedFile(null);
+    setVideoUrl("");
+    setUploadProgress(0);
 
     const validationError = await validateFile(file);
     
@@ -274,16 +337,76 @@ export default function Home() {
   const handleRemoveFile = useCallback(() => {
     setSelectedFile(null);
     setError("");
+    setVideoUrl("");
+    setUploadProgress(0);
+    setGcsPath("");
   }, []);
 
-  const handleProcess = useCallback(() => {
-    setIsProcessing(true);
-    console.log("Processing video:", selectedFile?.name);
+  const handleProcess = useCallback(async () => {
+    if (!selectedFile) return;
     
-    setTimeout(() => {
+    setIsProcessing(true);
+    setError("");
+    
+    try {
+      const response = await fetch('/api/upload/generate-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: selectedFile.name,
+          contentType: selectedFile.type,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate upload URL');
+      }
+
+      const { uploadUrl, gcsPath: path } = await response.json();
+      setGcsPath(path);
+
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          const progress = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(progress);
+        }
+      });
+
+      xhr.addEventListener('load', async () => {
+        if (xhr.status === 200) {
+          const urlResponse = await fetch('/api/upload/get-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gcsPath: path }),
+          });
+          
+          if (urlResponse.ok) {
+            const { url } = await urlResponse.json();
+            setVideoUrl(url);
+          }
+          
+          setIsProcessing(false);
+        } else {
+          throw new Error('Upload failed');
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        setError('Upload failed. Please try again.');
+        setIsProcessing(false);
+      });
+
+      xhr.open('PUT', uploadUrl, true);
+      xhr.setRequestHeader('Content-Type', selectedFile.type);
+      xhr.send(selectedFile);
+
+    } catch (err) {
+      setError('Upload failed. Please try again.');
       setIsProcessing(false);
-      alert("Watermark removed successfully! In production, download would start here.");
-    }, 2000);
+      setUploadProgress(0);
+    }
   }, [selectedFile]);
 
   return (
@@ -310,12 +433,20 @@ export default function Home() {
           
           {error && <ErrorMessage message={error} />}
           
-          {selectedFile && !error && (
+          {selectedFile && !error && !videoUrl && (
             <FilePreview
               file={selectedFile}
               onRemove={handleRemoveFile}
               onProcess={handleProcess}
               isProcessing={isProcessing}
+              uploadProgress={uploadProgress}
+            />
+          )}
+          
+          {videoUrl && (
+            <VideoPreview
+              videoUrl={videoUrl}
+              onRemove={handleRemoveFile}
             />
           )}
         </section>
