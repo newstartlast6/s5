@@ -4,6 +4,13 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations. The application uses Supabase for authentication and Google Cloud Storage for video uploads.
 
 ## Recent Changes
+- **Oct 4, 2025**: Enhanced landing page with How It Works, FAQ, and Footer sections
+  - **How It Works section**: Beautiful card-based layout showcasing AI Detection and Smart Removal features with animated icons (Sparkles and Wand2)
+  - **FAQ section**: Accordion-style Frequently Asked Questions covering Sora video compatibility, video quality, processing time, and privacy/security
+  - **Footer section**: Professional 3-column footer with branding, features list, and support links
+  - Modern, stylish design with teal accents, backdrop blur effects, hover animations, and smooth transitions
+  - Sections only display on landing page (when no video/jobs are present), maintaining clean split-view UX when working with videos
+  
 - **Oct 4, 2025**: Fresh GitHub import successfully set up in Replit environment
   - Installed all npm dependencies (397 packages)
   - Configured Next.js to work with Replit proxy (allowedDevOrigins: "*" for iframe support)

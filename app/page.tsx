@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle, User as UserIcon, LogOut } from "lucide-react";
+import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle, User as UserIcon, LogOut, Sparkles, Wand2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/app/auth/actions";
 import type { User } from "@supabase/supabase-js";
@@ -317,6 +323,155 @@ function Header({ user, onSignOut }: HeaderProps) {
         )}
       </div>
     </header>
+  );
+}
+
+function HowItWorks() {
+  return (
+    <section className="py-20 md:py-28">
+      <div className="text-center mb-16">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+          How It Works
+        </h2>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Our AI-powered technology intelligently detects and removes Sora watermarks while preserving video quality
+        </p>
+      </div>
+
+      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardContent className="p-8 relative">
+            <div className="mb-6 relative inline-block">
+              <div className="absolute inset-0 blur-xl bg-primary/50 animate-pulse" />
+              <Sparkles className="w-12 h-12 text-primary relative z-10" />
+            </div>
+            <h3 className="text-2xl font-bold mb-3 text-foreground">AI Detection</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Our advanced AI automatically detects Sora watermarks in your video, regardless of their position, size, or transparency level.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 transition-all duration-300">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardContent className="p-8 relative">
+            <div className="mb-6 relative inline-block">
+              <div className="absolute inset-0 blur-xl bg-primary/50 animate-pulse" />
+              <Wand2 className="w-12 h-12 text-primary relative z-10" />
+            </div>
+            <h3 className="text-2xl font-bold mb-3 text-foreground">Smart Removal</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Using intelligent inpainting algorithms, we seamlessly remove the watermark while maintaining the original video quality and frame consistency.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
+function FAQ() {
+  return (
+    <section className="py-20 md:py-28 bg-card/20 backdrop-blur-sm">
+      <div className="container mx-auto px-6 md:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Everything you need to know about our watermark removal service
+          </p>
+        </div>
+
+        <Accordion type="single" collapsible className="max-w-3xl mx-auto space-y-4">
+          <AccordionItem value="item-1" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+              Does this work with all Sora videos?
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              Yes! Our tool is specifically designed to detect and remove Sora watermarks from any video, regardless of resolution or length.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-2" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+              Will the video quality be affected?
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              No. We use advanced AI inpainting techniques that remove the watermark while preserving the original video quality. The result is indistinguishable from the original unwatermarked footage.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-3" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+              How long does processing take?
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              Processing time varies based on video length and complexity, typically ranging from 30 seconds to 2 minutes. You'll see real-time progress updates during processing.
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="item-4" className="border-2 border-primary/20 rounded-xl px-6 bg-card/50 backdrop-blur-sm">
+            <AccordionTrigger className="text-lg font-semibold hover:text-primary transition-colors hover:no-underline">
+              Is this tool private and secure?
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground leading-relaxed">
+              Absolutely. Your videos are automatically deleted after 24 hours and we don't store any personal information. The tool is completely private and safe to use.
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="border-t bg-card/30 backdrop-blur-sm">
+      <div className="container mx-auto px-6 md:px-8 py-12">
+        <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="relative">
+                <Droplets className="w-6 h-6 text-primary" />
+                <div className="absolute inset-0 blur-md bg-primary/50 -z-10" />
+              </div>
+              <span className="text-xl font-bold text-foreground">
+                Watermark Remover
+              </span>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              Remove Sora watermarks from your videos instantly with AI-powered technology.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-4">Features</h3>
+            <ul className="space-y-2 text-muted-foreground">
+              <li className="hover:text-primary transition-colors cursor-pointer">AI Detection</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Smart Removal</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Quality Preservation</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Fast Processing</li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-4">Support</h3>
+            <ul className="space-y-2 text-muted-foreground">
+              <li className="hover:text-primary transition-colors cursor-pointer">FAQ</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Privacy Policy</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Terms of Service</li>
+              <li className="hover:text-primary transition-colors cursor-pointer">Contact Us</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
+          <p>&copy; {new Date().getFullYear()} Watermark Remover. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   );
 }
 
@@ -681,40 +836,47 @@ export default function Home() {
   const shouldShowSplitView = videoUrl || hasJobs;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header user={user} onSignOut={handleSignOut} />
       
       {!shouldShowSplitView ? (
-        <main className="container mx-auto px-6 md:px-8">
-          <section className="py-16 md:py-24 text-center relative">
-            <div className="absolute inset-0 -z-10 overflow-hidden">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-            </div>
-            
-            <h1 className="text-6xl md:text-7xl font-bold mb-4" data-testid="heading-hero">
-              <span className="text-foreground">Free </span>
-              <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
-              <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.
-            </p>
-          </section>
+        <>
+          <main className="container mx-auto px-6 md:px-8 flex-1">
+            <section className="py-16 md:py-24 text-center relative">
+              <div className="absolute inset-0 -z-10 overflow-hidden">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+              </div>
+              
+              <h1 className="text-6xl md:text-7xl font-bold mb-4" data-testid="heading-hero">
+                <span className="text-foreground">Free </span>
+                <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+                <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.
+              </p>
+            </section>
 
-          <section className="max-w-3xl mx-auto pb-16">
-            {!selectedFile && !isProcessing && (
-              <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
-            )}
-            
-            {error && <ErrorMessage message={error} />}
-            
-            {isProcessing && selectedFile && (
-              <UploadingState
-                progress={uploadProgress}
-                fileName={selectedFile.name}
-              />
-            )}
-          </section>
-        </main>
+            <section className="max-w-3xl mx-auto pb-16">
+              {!selectedFile && !isProcessing && (
+                <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
+              )}
+              
+              {error && <ErrorMessage message={error} />}
+              
+              {isProcessing && selectedFile && (
+                <UploadingState
+                  progress={uploadProgress}
+                  fileName={selectedFile.name}
+                />
+              )}
+            </section>
+
+            <HowItWorks />
+          </main>
+          
+          <FAQ />
+          <Footer />
+        </>
       ) : (
         <main className="h-[calc(100vh-4rem)]">
           <div className="grid grid-cols-2 h-full divide-x divide-border">
