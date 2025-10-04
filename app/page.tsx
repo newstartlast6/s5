@@ -152,7 +152,7 @@ function VideoPreview({ videoUrl, onRemove, onRemoveWatermark }: VideoPreviewPro
           variant="ghost"
           size="sm"
           onClick={onRemove}
-          className="bg-background/20 hover:bg-background/40 backdrop-blur-sm"
+          className="bg-background/20 hover:bg-background/40 backdrop-blur-sm cursor-pointer transition-all hover:scale-105"
         >
           <X className="w-4 h-4 mr-2" />
           Start Over
