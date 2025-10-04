@@ -1,13 +1,24 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle } from "lucide-react";
+import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle, User as UserIcon, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DemoComponent } from "@/components/DemoComponent";
 import { AuthDialog } from "@/components/AuthDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { createClient } from "@/lib/supabase/client";
+import { signOut } from "@/app/auth/actions";
+import type { User } from "@supabase/supabase-js";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const MAX_DURATION = 30;
@@ -247,7 +258,12 @@ function ErrorMessage({ message }: ErrorMessageProps) {
   );
 }
 
-function Header() {
+interface HeaderProps {
+  user: User | null;
+  onSignOut: () => void;
+}
+
+function Header({ user, onSignOut }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-6 md:px-8 flex h-16 items-center justify-between">
@@ -260,6 +276,31 @@ function Header() {
             Watermark Remover
           </span>
         </div>
+        
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <UserIcon className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">Account</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">
+                    {user.email}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onSignOut} className="cursor-pointer">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </header>
   );
@@ -273,8 +314,13 @@ export default function Home() {
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [gcsPath, setGcsPath] = useState<string>("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    
     const savedVideoUrl = localStorage.getItem('videoUrl');
     const savedGcsPath = localStorage.getItem('gcsPath');
     
@@ -286,7 +332,25 @@ export default function Home() {
     if (window.location.search.includes('code=')) {
       window.history.replaceState({}, '', window.location.pathname);
     }
+
+    const supabase = createClient();
+    
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setIsLoadingUser(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUser(null);
+  };
 
   const validateFile = useCallback(async (file: File): Promise<string | null> => {
     if (file.size > MAX_FILE_SIZE) {
@@ -401,9 +465,17 @@ export default function Home() {
     localStorage.removeItem('gcsPath');
   }, []);
 
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header user={user} onSignOut={handleSignOut} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <Header user={user} onSignOut={handleSignOut} />
       
       {!videoUrl ? (
         <main className="container mx-auto px-6 md:px-8">
