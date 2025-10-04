@@ -659,7 +659,7 @@ export default function Home() {
     } finally {
       setIsSubmittingJob(false);
     }
-  }, [gcsPath, uploadedFileName, fetchJobs, handleRemoveFile]);
+  }, [gcsPath, uploadedFileName, thumbnailUrl, fetchJobs, handleRemoveFile]);
 
   const handleRemoveWatermark = useCallback(() => {
     if (user) {
