@@ -4,19 +4,20 @@
 A Next.js 15 application designed to remove watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
 ## Recent Changes
+- **Oct 4, 2025**: Successfully re-imported and configured project for Replit environment
+  - Imported fresh clone from GitHub repository
+  - Installed all npm dependencies (404 packages) successfully
+  - Configured Next.js dev server on port 5000 with host 0.0.0.0 (pre-configured in package.json)
+  - Updated next.config.ts to properly support Replit's iframe proxy with allowedDevOrigins: ["*"]
+  - Verified application running successfully with main UI visible and functional
+  - Set up autoscale deployment configuration (build: npm run build, run: npm start)
+  - Server workflow running without errors, application ready for use
 - **Oct 4, 2025**: Fixed video clearing, Pro badge refresh, and hardcoded plan IDs
   - Fixed video clearing on signup: Video now only clears after the job appears in job history with indefinite polling using exponential backoff (300ms to 1000ms)
   - Job history properly refreshes before video clearing, ensuring users see their job immediately after signup
   - Pro badge now appears after subscribing: Subscription status refreshes on page load and after checkout return (no polling)
   - Pro badge location: Displays in the user dropdown menu (click user icon in top-right corner)
   - Fixed hardcoded plan_id values: Replaced all hardcoded IDs with NEXT_PUBLIC_CREEM_MONTHLY_PLAN_ID and NEXT_PUBLIC_CREEM_LIFETIME_PLAN_ID environment variables in webhook and checkout session
-- **Oct 4, 2025**: Configured for Replit environment
-  - Successfully imported from GitHub and configured for Replit
-  - Installed all npm dependencies (404 packages)
-  - Verified Next.js dev server running on port 5000 with 0.0.0.0 host
-  - Confirmed proxy compatibility with allowedDevOrigins: ["*"] in next.config.ts
-  - Set up deployment configuration for autoscale (build: npm run build, start: npm start)
-  - Application running successfully with all features functional
 - **Oct 4, 2025**: Fixed webhook to correctly handle monthly subscriptions and added Pro User badge
   - Fixed webhook handler to treat monthly subscriptions correctly in test mode (removed prod_1FVYSkTv3ur6jDliBI2Mt from lifetime plans)
   - Monthly subscription (prod_1FVYSkTv3ur6jDliBI2Mt) now grants 1000 videos, not unlimited

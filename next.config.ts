@@ -6,8 +6,6 @@ const nextConfig: NextConfig = {
       allowedOrigins: ["*"],
     },
   },
-  // @ts-ignore - allowedDevOrigins is an experimental feature
-  allowedDevOrigins: ["*"],
 
   async rewrites() {
     return [
@@ -22,8 +20,9 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
-};
+} as NextConfig & { allowedDevOrigins?: string[] };
+
+(nextConfig as any).allowedDevOrigins = ["*"];
 
 export default nextConfig;
