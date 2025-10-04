@@ -541,8 +541,10 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Header user={user} onSignOut={handleSignOut} />
       
-      {user ? (
-        <main className="h-[calc(100vh-4rem)]">
+      <main className={cn(
+        user && videoUrl ? "h-[calc(100vh-4rem)]" : ""
+      )}>
+        {user && videoUrl ? (
           <div className="grid grid-cols-2 h-full divide-x divide-border">
             <div className="relative overflow-y-auto">
               <div className="p-8 space-y-8">
@@ -555,22 +557,48 @@ export default function Home() {
                   </p>
                 </div>
 
-                {!videoUrl ? (
-                  <div className="space-y-4">
-                    {!selectedFile && !isProcessing && (
-                      <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
-                    )}
-                    
-                    {error && <ErrorMessage message={error} />}
-                    
-                    {isProcessing && selectedFile && (
-                      <UploadingState
-                        progress={uploadProgress}
-                        fileName={selectedFile.name}
-                      />
-                    )}
-                  </div>
-                ) : (
+                <div className="space-y-4">
+                  <VideoPreview
+                    videoUrl={videoUrl}
+                    onRemove={handleRemoveFile}
+                    onRemoveWatermark={handleRemoveWatermark}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="relative bg-card/20">
+              <JobHistory />
+            </div>
+          </div>
+        ) : (
+          <div className="container mx-auto px-6 md:px-8 py-16">
+            <div className="max-w-4xl mx-auto space-y-8">
+              <div className="text-center">
+                <h1 className="text-5xl md:text-6xl font-bold mb-4">
+                  <span className="text-foreground">Free </span>
+                  <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
+                </h1>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                  <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {!selectedFile && !isProcessing && (
+                  <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
+                )}
+                
+                {error && <ErrorMessage message={error} />}
+                
+                {isProcessing && selectedFile && (
+                  <UploadingState
+                    progress={uploadProgress}
+                    fileName={selectedFile.name}
+                  />
+                )}
+
+                {videoUrl && !user && (
                   <div className="space-y-4">
                     <VideoPreview
                       videoUrl={videoUrl}
@@ -581,37 +609,9 @@ export default function Home() {
                 )}
               </div>
             </div>
-            
-            <div className="relative bg-card/20">
-              <JobHistory />
-            </div>
           </div>
-        </main>
-      ) : (
-        <main className="container mx-auto px-6 md:px-8">
-          <section className="py-16 md:py-24 text-center relative">
-            <div className="absolute inset-0 -z-10 overflow-hidden">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-            </div>
-            
-            <h1 className="text-6xl md:text-7xl font-bold mb-4" data-testid="heading-hero">
-              <span className="text-foreground">Free </span>
-              <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8" data-testid="text-hero-subtitle">
-              <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.
-            </p>
-
-            <Button 
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6"
-              onClick={() => setShowAuthDialog(true)}
-            >
-              Get Started - Sign In
-            </Button>
-          </section>
-        </main>
-      )}
+        )}
+      </main>
 
       <AuthDialog 
         open={showAuthDialog} 
