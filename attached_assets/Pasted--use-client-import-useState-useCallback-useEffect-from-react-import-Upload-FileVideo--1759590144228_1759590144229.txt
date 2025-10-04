@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DemoComponent } from "@/components/DemoComponent";
 import { AuthDialog } from "@/components/AuthDialog";
-import { JobHistory, type VideoJob } from "@/components/JobHistory";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -321,23 +320,6 @@ export default function Home() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
-  const [jobs, setJobs] = useState<VideoJob[]>([]);
-  const [isLoadingJobs, setIsLoadingJobs] = useState(false);
-
-  const fetchJobs = useCallback(async () => {
-    try {
-      const response = await fetch('/api/jobs/list');
-      if (!response.ok) {
-        throw new Error('Failed to fetch jobs');
-      }
-      const data = await response.json();
-      setJobs(data.jobs || []);
-    } catch (error: any) {
-      console.error('Error fetching jobs:', error);
-    } finally {
-      setIsLoadingJobs(false);
-    }
-  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -360,40 +342,17 @@ export default function Home() {
 
     const supabase = createClient();
     
-    if (supabase) {
-      supabase.auth.getUser().then(({ data: { user } }) => {
-        setUser(user);
-        setIsLoadingUser(false);
-        if (user) {
-          setIsLoadingJobs(true);
-          fetchJobs();
-        }
-      });
-
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        const newUser = session?.user ?? null;
-        setUser(newUser);
-        if (newUser) {
-          setIsLoadingJobs(true);
-          fetchJobs();
-        } else {
-          setJobs([]);
-          setIsLoadingJobs(false);
-        }
-      });
-
-      return () => subscription.unsubscribe();
-    } else {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
       setIsLoadingUser(false);
-    }
-  }, [fetchJobs]);
+    });
 
-  useEffect(() => {
-    if (!user) return;
-    
-    const interval = setInterval(fetchJobs, 10000);
-    return () => clearInterval(interval);
-  }, [user, fetchJobs]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -535,8 +494,6 @@ export default function Home() {
         description: 'Your video is being processed. You will be notified when it\'s ready.',
       });
 
-      fetchJobs();
-
     } catch (err: any) {
       setError(err.message || 'Failed to start processing. Please try again.');
       toast.error('Failed to start processing', {
@@ -545,7 +502,7 @@ export default function Home() {
     } finally {
       setIsSubmittingJob(false);
     }
-  }, [gcsPath, uploadedFileName, fetchJobs]);
+  }, [gcsPath, uploadedFileName]);
 
   const handleRemoveWatermark = useCallback(() => {
     if (user) {
@@ -575,14 +532,11 @@ export default function Home() {
     );
   }
 
-  const hasJobs = jobs.length > 0;
-  const shouldShowSplitView = user ? (videoUrl || hasJobs) : videoUrl;
-
   return (
     <div className="min-h-screen bg-background">
       <Header user={user} onSignOut={handleSignOut} />
       
-      {!shouldShowSplitView ? (
+      {!videoUrl ? (
         <main className="container mx-auto px-6 md:px-8">
           <section className="py-16 md:py-24 text-center relative">
             <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -617,45 +571,15 @@ export default function Home() {
         <main className="h-[calc(100vh-4rem)]">
           <div className="grid grid-cols-2 h-full divide-x divide-border">
             <div className="relative">
-              {videoUrl ? (
-                <VideoPreview
-                  videoUrl={videoUrl}
-                  onRemove={handleRemoveFile}
-                  onRemoveWatermark={handleRemoveWatermark}
-                />
-              ) : (
-                <div className="p-8 space-y-8">
-                  <div>
-                    <h2 className="text-3xl font-bold text-foreground mb-2">
-                      Upload Video
-                    </h2>
-                    <p className="text-muted-foreground">
-                      Remove watermarks from your videos instantly
-                    </p>
-                  </div>
-
-                  {!selectedFile && !isProcessing && (
-                    <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
-                  )}
-                  
-                  {error && <ErrorMessage message={error} />}
-                  
-                  {isProcessing && selectedFile && (
-                    <UploadingState
-                      progress={uploadProgress}
-                      fileName={selectedFile.name}
-                    />
-                  )}
-                </div>
-              )}
+              <VideoPreview
+                videoUrl={videoUrl}
+                onRemove={handleRemoveFile}
+                onRemoveWatermark={handleRemoveWatermark}
+              />
             </div>
             
             <div className="relative animate-in fade-in slide-in-from-right duration-500">
-              {user && hasJobs ? (
-                <JobHistory jobs={jobs} isLoading={isLoadingJobs} onRefresh={fetchJobs} />
-              ) : (
-                <DemoComponent />
-              )}
+              <DemoComponent />
             </div>
           </div>
         </main>

@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
 
-interface VideoJob {
+export interface VideoJob {
   id: string;
   filename: string;
   status: 'uploaded' | 'processing' | 'completed' | 'failed';
@@ -20,31 +20,13 @@ interface VideoJob {
   gcs_output_path?: string;
 }
 
-export function JobHistory() {
-  const [jobs, setJobs] = useState<VideoJob[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+interface JobHistoryProps {
+  jobs: VideoJob[];
+  isLoading: boolean;
+  onRefresh?: () => void;
+}
 
-  const fetchJobs = async () => {
-    try {
-      const response = await fetch('/api/jobs/list');
-      if (!response.ok) {
-        throw new Error('Failed to fetch jobs');
-      }
-      const data = await response.json();
-      setJobs(data.jobs || []);
-    } catch (error: any) {
-      console.error('Error fetching jobs:', error);
-      toast.error('Failed to load job history');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchJobs();
-    const interval = setInterval(fetchJobs, 10000);
-    return () => clearInterval(interval);
-  }, []);
+export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
 
   const getStatusConfig = (status: string) => {
     switch (status) {
