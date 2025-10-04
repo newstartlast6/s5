@@ -19,6 +19,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const FREE_VIDEO_LIMIT = parseInt(process.env.FREE_VIDEO_LIMIT || '3');
+
+    const { data: subscription, error: subError } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (subError) {
+      console.error('Error fetching subscription:', subError);
+      return NextResponse.json({ error: 'Failed to check subscription' }, { status: 500 });
+    }
+
+    const { count: freeVideosUsed, error: countError } = await supabase
+      .from('video_jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_free', true);
+
+    if (countError) {
+      console.error('Error counting free videos:', countError);
+      return NextResponse.json({ error: 'Failed to check video count' }, { status: 500 });
+    }
+
+    const hasActiveSubscription = subscription?.status === 'active' || subscription?.is_lifetime === true;
+    const freeVideosCount = freeVideosUsed || 0;
+    
+    if (!hasActiveSubscription && freeVideosCount >= FREE_VIDEO_LIMIT) {
+      return NextResponse.json({ error: 'Free video limit exceeded. Please subscribe to continue.' }, { status: 403 });
+    }
+
+    const isFreeVideo = !hasActiveSubscription;
+
     const uploadBucket = process.env.GOOGLE_CLOUD_STORAGE_BUCKET!;
     const inputBucket = 'soraremover-sora-remover-input';
     const outputBucket = 'soraremover-sora-remover-output';
@@ -37,6 +70,7 @@ export async function POST(req: NextRequest) {
         inpaint_method: inpaintMethod,
         gcs_input_path: gcsPath,
         thumbnail_url: thumbnailUrl,
+        is_free: isFreeVideo,
       })
       .select()
       .single();

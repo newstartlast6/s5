@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DemoComponent } from "@/components/DemoComponent";
 import { AuthDialog } from "@/components/AuthDialog";
 import { JobHistory, type VideoJob } from "@/components/JobHistory";
+import PricingDialog from "@/components/PricingDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -525,6 +526,7 @@ export default function Home() {
   const [uploadedFileName, setUploadedFileName] = useState<string>("");
   const [thumbnailUrl, setThumbnailUrl] = useState<string>("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showPricingDialog, setShowPricingDialog] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -863,16 +865,46 @@ export default function Home() {
     }
   }, [gcsPath, uploadedFileName, thumbnailUrl, fetchJobs, handleRemoveFile]);
 
-  const handleRemoveWatermark = useCallback(() => {
+  const handleRemoveWatermark = useCallback(async () => {
     posthog.capture('watermark_removal_requested', {
       file_name: uploadedFileName,
       gcs_path: gcsPath,
       is_authenticated: !!user,
     });
-    if (user) {
-      createJobAndTrigger();
-    } else {
+    
+    if (!user) {
       setShowAuthDialog(true);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/subscription/status');
+      
+      if (!response.ok) {
+        toast.error('Failed to check subscription status');
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      if (!data.canProcessVideo) {
+        setShowPricingDialog(true);
+        posthog.capture('free_limit_reached', {
+          free_videos_used: data.freeVideosUsed,
+          has_subscription: data.hasSubscription,
+        });
+        return;
+      }
+
+      createJobAndTrigger();
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      toast.error('Error checking subscription status');
     }
   }, [user, createJobAndTrigger, uploadedFileName, gcsPath]);
 
@@ -982,6 +1014,13 @@ export default function Home() {
         open={showAuthDialog} 
         onOpenChange={setShowAuthDialog}
         onSuccess={createJobAndTrigger}
+      />
+
+      <PricingDialog
+        open={showPricingDialog}
+        onOpenChange={setShowPricingDialog}
+        userEmail={user?.email}
+        userId={user?.id}
       />
     </div>
   );

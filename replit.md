@@ -4,6 +4,22 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations. The application uses Supabase for authentication and Google Cloud Storage for video uploads.
 
 ## Recent Changes
+- **Oct 4, 2025**: Payment integration with Creem.io and free tier implementation
+  - **Free video limit system**: Added FREE_VIDEO_LIMIT env variable (default: 3 free videos)
+  - **Beautiful pricing popup**: Created modern $5/month pricing dialog with teal theme
+  - **Subscription status API**: GET /api/subscription/status checks user limits and subscription
+  - **Database schema updates**:
+    - `subscriptions` table created for tracking user subscriptions
+    - `video_jobs.is_free` column added to track free vs paid videos
+  - **Payment flow**: 
+    - Remove Watermark button checks subscription status
+    - Shows pricing popup when free limit exceeded
+    - Integrates with existing Creem.io webhook for subscription activation
+  - **Environment variables**:
+    - `FREE_VIDEO_LIMIT`: Number of free videos (0 to n)
+    - `NEXT_PUBLIC_CREEM_MONTHLY_PLAN_ID`: Creem product ID for $5/month plan
+  - All features tested and working correctly
+
 - **Oct 4, 2025**: Fresh GitHub import successfully configured for Replit environment
   - Installed all npm dependencies (404 packages)
   - Updated package.json scripts to run on port 5000 (dev and start commands)
