@@ -117,8 +117,8 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                 boxShadow: '0 0 20px rgba(11, 165, 172, 0.15)'
               }}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-4 flex-1 min-w-0">
+              <div className={cn("flex justify-between gap-4", job.thumbnail_url ? "items-center" : "items-start")}>
+                <div className={cn("flex gap-4 flex-1 min-w-0", job.thumbnail_url ? "items-center" : "items-start")}>
                   {job.thumbnail_url ? (
                     <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 border-2 border-primary/30">
                       <img 
@@ -163,7 +163,7 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                     </div>
 
                     {job.status === 'processing' && (
-                      <div className="flex items-center gap-2 text-sm text-primary">
+                      <div className={cn("flex items-center gap-2 text-sm text-primary", job.thumbnail_url && "justify-center")}>
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span>Processing your video...</span>
                       </div>
