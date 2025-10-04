@@ -301,7 +301,7 @@ function Header({ user, onSignOut, hasActiveSubscription, subscriptionData }: He
             <div className="absolute inset-0 blur-md bg-primary/50 -z-10" />
           </div>
           <span className="text-xl font-bold text-foreground">
-            Watermark Remover
+            Remove Sora Watermark
           </span>
         </div>
         
@@ -500,7 +500,7 @@ function Footer() {
   return (
     <footer className="border-t bg-card/30 backdrop-blur-sm">
       <div className="container mx-auto px-6 md:px-8 py-12">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="relative">
@@ -508,7 +508,7 @@ function Footer() {
                 <div className="absolute inset-0 blur-md bg-primary/50 -z-10" />
               </div>
               <span className="text-xl font-bold text-foreground">
-                Watermark Remover
+                Remove Sora Watermark
               </span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
@@ -517,28 +517,29 @@ function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Features</h3>
+            <h3 className="font-semibold text-foreground mb-4">Legal</h3>
             <ul className="space-y-2 text-muted-foreground">
-              <li className="hover:text-primary transition-colors cursor-pointer">AI Detection</li>
-              <li className="hover:text-primary transition-colors cursor-pointer">Smart Removal</li>
-              <li className="hover:text-primary transition-colors cursor-pointer">Quality Preservation</li>
-              <li className="hover:text-primary transition-colors cursor-pointer">Fast Processing</li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">Support</h3>
-            <ul className="space-y-2 text-muted-foreground">
-              <li className="hover:text-primary transition-colors cursor-pointer">FAQ</li>
-              <li className="hover:text-primary transition-colors cursor-pointer">Privacy Policy</li>
-              <li className="hover:text-primary transition-colors cursor-pointer">Terms of Service</li>
-              <li className="hover:text-primary transition-colors cursor-pointer">Contact Us</li>
+              <li>
+                <a href="/privacy" className="hover:text-primary transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" className="hover:text-primary transition-colors">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="/refunds" className="hover:text-primary transition-colors">
+                  Refund Policy
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Watermark Remover. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} RemoveSoraWatermark. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -1046,7 +1047,7 @@ export default function Home() {
               
               <h1 className="text-6xl md:text-7xl font-bold mb-4" data-testid="heading-hero">
                 <span className="text-foreground">Free </span>
-                <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
+                <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Sora Watermark Remover</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
                 <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.

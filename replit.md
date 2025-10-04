@@ -1,9 +1,15 @@
-# Watermark Remover
+# Remove Sora Watermark
 
 ## Overview
-A Next.js 15 application designed to remove watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
+A Next.js 15 application designed to remove Sora watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
 ## Recent Changes
+- **Oct 4, 2025**: Added Crisp Chat and rebranded application
+  - Integrated Crisp live chat support widget with ID: 4c10a0ef-83bc-4be3-b669-8ffc08f36885
+  - Rebranded app from "Watermark Remover" to "Remove Sora Watermark" (standard name: RemoveSoraWatermark)
+  - Updated all branding throughout the app including header, footer, page title, and meta description
+  - Simplified footer: Removed Features section, kept only Legal links (Privacy Policy, Terms of Service, Refund Policy)
+  - Updated footer links to point to actual pages (/privacy, /terms, /refunds)
 - **Oct 4, 2025**: Multiple UX improvements
   - Fixed download button: Videos now download directly instead of opening in a new tab
   - Fixed video preview alignment: Large videos now align to the top instead of center (matching drag-and-drop area)

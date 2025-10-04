@@ -3,6 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
+import dynamic from 'next/dynamic';
+
+const CrispWithNoSSR = dynamic(
+  () => import('../components/crisp')
+);
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +20,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Watermark Remover - Free & Instant",
-  description: "Remove watermarks from videos instantly with our advanced technology. Free, fast, and easy to use.",
+  title: "Remove Sora Watermark - Free & Instant",
+  description: "Remove Sora watermarks from videos instantly with our advanced technology. Free, fast, and easy to use.",
 };
 
 export default function RootLayout({
@@ -26,6 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <CrispWithNoSSR />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
