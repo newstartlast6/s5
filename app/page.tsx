@@ -856,10 +856,17 @@ export default function Home() {
       handleRemoveFile();
 
     } catch (err: any) {
-      setError(err.message || 'Failed to start processing. Please try again.');
-      toast.error('Failed to start processing', {
-        description: err.message || 'Please try again.',
-      });
+      if (err.message && err.message.includes('Free video limit exceeded')) {
+        setShowPricingDialog(true);
+        posthog.capture('free_limit_reached', {
+          context: 'job_creation',
+        });
+      } else {
+        setError(err.message || 'Failed to start processing. Please try again.');
+        toast.error('Failed to start processing', {
+          description: err.message || 'Please try again.',
+        });
+      }
     } finally {
       setIsSubmittingJob(false);
     }
