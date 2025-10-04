@@ -113,7 +113,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           </TabsList>
 
           <TabsContent value="login" className="space-y-4 mt-6">
-            <form action={handleLogin} className="space-y-4">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              handleLogin(formData);
+            }} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="login-email" className="text-foreground">Email</Label>
                 <div className="relative">
@@ -170,7 +174,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           </TabsContent>
 
           <TabsContent value="signup" className="space-y-4 mt-6">
-            <form action={handleSignup} className="space-y-4">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              handleSignup(formData);
+            }} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signup-name" className="text-foreground">Full Name</Label>
                 <div className="relative">
