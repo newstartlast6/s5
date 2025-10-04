@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
       
       const cloudRunCommand = `gcloud run jobs execute sora-remover-service --region ${region} --set-env-vars INPUT_VIDEO_URL=${inputVideoUrl},OUTPUT_VIDEO_URL=${outputVideoUrl},INPAINT_METHOD=${inpaintMethod},JOB_ID=${job.id}`;
       
-      const { stdout, stderr } = await execAsync(cloudRunCommand);
+      const { stdout } = await execAsync(cloudRunCommand);
       
       const jobIdMatch = stdout.match(/Job execution created: (.+)/);
       const cloudJobId = jobIdMatch ? jobIdMatch[1] : null;
@@ -99,8 +99,8 @@ export async function POST(req: NextRequest) {
         message: 'Job created and Cloud Run job triggered successfully'
       });
       
-    } catch (copyError: any) {
-      console.error('Error copying file or executing Cloud Run job:', copyError);
+    } catch (processError: any) {
+      console.error('Error copying file or executing Cloud Run job:', processError);
       
       await supabase
         .from('video_jobs')
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Failed to process job',
-          details: copyError.message 
+          details: processError.message 
         },
         { status: 500 }
       );

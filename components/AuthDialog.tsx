@@ -37,6 +37,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
           description: "Welcome back! You've been signed in.",
         });
         onOpenChange(false);
+        onSuccess?.();
       }
     } catch (err) {
       const errorMsg = "An error occurred. Please try again.";
@@ -64,6 +65,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
           description: "Welcome! Your account has been created. Please check your email to verify your account.",
         });
         onOpenChange(false);
+        onSuccess?.();
       }
     } catch (err) {
       const errorMsg = "An error occurred. Please try again.";

@@ -313,20 +313,26 @@ export default function Home() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [gcsPath, setGcsPath] = useState<string>("");
+  const [uploadedFileName, setUploadedFileName] = useState<string>("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [isSubmittingJob, setIsSubmittingJob] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
     
     const savedVideoUrl = localStorage.getItem('videoUrl');
     const savedGcsPath = localStorage.getItem('gcsPath');
+    const savedFileName = localStorage.getItem('uploadedFileName');
     
     if (savedVideoUrl && savedGcsPath) {
       setVideoUrl(savedVideoUrl);
       setGcsPath(savedGcsPath);
+      if (savedFileName) {
+        setUploadedFileName(savedFileName);
+      }
     }
 
     if (window.location.search.includes('code=')) {
@@ -415,9 +421,11 @@ export default function Home() {
       xhr.addEventListener('load', () => {
         if (xhr.status === 200) {
           setVideoUrl(downloadUrl);
+          setUploadedFileName(file.name);
           setIsProcessing(false);
           localStorage.setItem('videoUrl', downloadUrl);
           localStorage.setItem('gcsPath', path);
+          localStorage.setItem('uploadedFileName', file.name);
         } else {
           throw new Error('Upload failed');
         }
@@ -464,6 +472,53 @@ export default function Home() {
     localStorage.removeItem('videoUrl');
     localStorage.removeItem('gcsPath');
   }, []);
+
+  const submitJob = useCallback(async () => {
+    if (!gcsPath || !selectedFile) {
+      setError('No video file to process');
+      return;
+    }
+
+    setIsSubmittingJob(true);
+    setError("");
+
+    try {
+      const response = await fetch('/api/jobs/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gcsPath,
+          filename: selectedFile.name,
+          inpaintMethod: 'opencv',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit job');
+      }
+
+      setError("");
+      setShowAuthDialog(false);
+      
+      alert(`Job submitted successfully! Your video is being processed. Job ID: ${data.jobId}`);
+      
+    } catch (err: any) {
+      console.error('Error submitting job:', err);
+      setError(err.message || 'Failed to submit job. Please try again.');
+    } finally {
+      setIsSubmittingJob(false);
+    }
+  }, [gcsPath, selectedFile]);
+
+  const handleRemoveWatermark = useCallback(() => {
+    if (user) {
+      submitJob();
+    } else {
+      setShowAuthDialog(true);
+    }
+  }, [user, submitJob]);
 
   if (!isMounted) {
     return (
@@ -515,7 +570,7 @@ export default function Home() {
               <VideoPreview
                 videoUrl={videoUrl}
                 onRemove={handleRemoveFile}
-                onRemoveWatermark={() => setShowAuthDialog(true)}
+                onRemoveWatermark={handleRemoveWatermark}
               />
             </div>
             
@@ -526,7 +581,11 @@ export default function Home() {
         </main>
       )}
 
-      <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} />
+      <AuthDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog}
+        onSuccess={submitJob}
+      />
     </div>
   );
 }
