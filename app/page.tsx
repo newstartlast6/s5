@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Upload, FileVideo, X, Loader2, Droplets, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import ThemeToggle from "@/components/ThemeToggle";
+import { DemoComponent } from "@/components/DemoComponent";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const MAX_DURATION = 30;
@@ -131,48 +131,61 @@ interface VideoPreviewProps {
 }
 
 function VideoPreview({ videoUrl, onRemove, onRemoveWatermark }: VideoPreviewProps) {
+  const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const video = document.createElement('video');
+    video.src = videoUrl;
+    
+    video.onloadedmetadata = () => {
+      const isPortrait = video.videoHeight > video.videoWidth;
+      setOrientation(isPortrait ? 'portrait' : 'landscape');
+      setIsLoaded(true);
+    };
+  }, [videoUrl]);
+
   return (
-    <div className="relative">
-      <div className="relative min-h-96 border-2 border-primary/60 rounded-2xl overflow-hidden bg-card/30 backdrop-blur-sm"
-        style={{
-          boxShadow: '0 0 40px rgba(11, 165, 172, 0.25), 0 10px 40px rgba(0, 0, 0, 0.3)'
-        }}>
+    <div className="h-full flex items-center justify-center p-8 animate-in fade-in slide-in-from-left duration-500">
+      <div className="w-full max-w-4xl space-y-6">
         <Button
           variant="ghost"
-          size="icon"
+          size="sm"
           onClick={onRemove}
-          className="absolute top-4 right-4 z-20 bg-background/80 hover:bg-background"
+          className="bg-background/20 hover:bg-background/40 backdrop-blur-sm"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4 mr-2" />
+          Start Over
         </Button>
         
-        <div className="relative w-full aspect-video bg-black">
-          <video 
-            src={videoUrl}
-            controls
-            className="w-full h-full"
-            preload="metadata"
-          >
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        
-        <div className="p-6 space-y-3">
-          <Button
-            onClick={onRemoveWatermark}
-            className="w-full relative overflow-hidden"
-            size="lg"
-          >
-            Remove Watermark
-          </Button>
+        <div className="relative rounded-2xl overflow-hidden bg-card/30 backdrop-blur-sm border-2 border-primary/60"
+          style={{
+            boxShadow: '0 0 40px rgba(11, 165, 172, 0.25), 0 10px 40px rgba(0, 0, 0, 0.3)'
+          }}>
+          <div className={cn(
+            "relative bg-black",
+            orientation === 'portrait' ? 'aspect-[9/16] max-h-[70vh] mx-auto' : 'aspect-video'
+          )}>
+            <video 
+              src={videoUrl}
+              controls
+              className="w-full h-full object-contain"
+              preload="metadata"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
           
-          <Button
-            onClick={() => window.open(videoUrl, '_blank')}
-            variant="outline"
-            className="w-full"
-          >
-            Download Original
-          </Button>
+          <div className="p-6 space-y-3">
+            <Button
+              onClick={onRemoveWatermark}
+              className="w-full relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground"
+              size="lg"
+            >
+              <span className="relative z-10">Remove Watermark</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] hover:translate-x-[200%] transition-transform duration-1000" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -246,7 +259,6 @@ function Header() {
             Watermark Remover
           </span>
         </div>
-        <ThemeToggle />
       </div>
     </header>
   );
@@ -373,44 +385,54 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-6 md:px-8">
-        <section className="py-16 md:py-24 text-center relative">
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-          </div>
-          
-          <h1 className="text-6xl md:text-7xl font-bold mb-4" data-testid="heading-hero">
-            <span className="text-foreground">Free </span>
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
-            <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.
-          </p>
-        </section>
+      {!videoUrl ? (
+        <main className="container mx-auto px-6 md:px-8">
+          <section className="py-16 md:py-24 text-center relative">
+            <div className="absolute inset-0 -z-10 overflow-hidden">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+            </div>
+            
+            <h1 className="text-6xl md:text-7xl font-bold mb-4" data-testid="heading-hero">
+              <span className="text-foreground">Free </span>
+              <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">Watermark Remover</span>
+            </h1>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-subtitle">
+              <span className="text-primary font-medium">Remove watermarks instantly</span> with our advanced technology. Upload your video and get a clean, watermark-free version in seconds.
+            </p>
+          </section>
 
-        <section className="max-w-3xl mx-auto pb-16">
-          {!selectedFile && !isProcessing && !videoUrl && (
-            <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
-          )}
-          
-          {error && <ErrorMessage message={error} />}
-          
-          {isProcessing && selectedFile && !videoUrl && (
-            <UploadingState
-              progress={uploadProgress}
-              fileName={selectedFile.name}
-            />
-          )}
-          
-          {videoUrl && (
-            <VideoPreview
-              videoUrl={videoUrl}
-              onRemove={handleRemoveFile}
-              onRemoveWatermark={() => alert('Watermark removal feature coming soon!')}
-            />
-          )}
-        </section>
-      </main>
+          <section className="max-w-3xl mx-auto pb-16">
+            {!selectedFile && !isProcessing && (
+              <UploadZone onFileSelect={handleFileSelect} hasError={!!error} />
+            )}
+            
+            {error && <ErrorMessage message={error} />}
+            
+            {isProcessing && selectedFile && (
+              <UploadingState
+                progress={uploadProgress}
+                fileName={selectedFile.name}
+              />
+            )}
+          </section>
+        </main>
+      ) : (
+        <main className="h-[calc(100vh-4rem)]">
+          <div className="grid grid-cols-2 h-full divide-x divide-border">
+            <div className="relative">
+              <VideoPreview
+                videoUrl={videoUrl}
+                onRemove={handleRemoveFile}
+                onRemoveWatermark={() => alert('Watermark removal feature coming soon!')}
+              />
+            </div>
+            
+            <div className="relative animate-in fade-in slide-in-from-right duration-500">
+              <DemoComponent />
+            </div>
+          </div>
+        </main>
+      )}
     </div>
   );
 }
