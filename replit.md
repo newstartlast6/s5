@@ -4,6 +4,12 @@
 A Next.js 15 application designed to remove Sora watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
 ## Recent Changes
+- **Oct 4, 2025**: UI/UX improvements for download, layout, and support access
+  - Enhanced download button with loading indicator: Shows "Downloading..." with spinner for 1 second when download is initiated, provides immediate visual feedback to users
+  - Removed numbered step circles (1, 2, 3) from "How It Works" section for cleaner, more modern appearance
+  - Added "Contact Us" button to footer Legal section that opens Crisp chat widget for instant support access
+  - Download button now uses simplified anchor-based approach for reliability, avoiding CORS issues while maintaining security with target="_blank" and rel="noopener noreferrer"
+  - All changes reviewed and approved by architect, ensuring code quality and best practices
 - **Oct 4, 2025**: Added Crisp Chat and rebranded application
   - Integrated Crisp live chat support widget with ID: 4c10a0ef-83bc-4be3-b669-8ffc08f36885
   - Rebranded app from "Watermark Remover" to "Remove Sora Watermark" (standard name: RemoveSoraWatermark)
