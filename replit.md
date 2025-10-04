@@ -4,6 +4,12 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations. The application uses Supabase for authentication and Google Cloud Storage for video uploads.
 
 ## Recent Changes
+- **Oct 4, 2025**: Job creation UX improvements - Seamless flow and instant feedback
+  - **Auto-clear video after job starts**: Video automatically removed from preview, upload zone appears
+  - **Job history auto-refresh**: Jobs list refreshes 500ms after creation to show new processing job
+  - **Smooth login-to-process flow**: Login → job creation → video cleared → job appears in history
+  - **Progress feedback**: Toast notification shows "Processing started!" with description
+
 - **Oct 4, 2025**: Conditional rendering logic implementation - Proper layout based on user state and content
   - **Smart layout system**: Layout automatically adjusts based on authentication status, video upload, and job history
   - **Non-authenticated users**:
