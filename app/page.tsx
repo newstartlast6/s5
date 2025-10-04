@@ -19,6 +19,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/app/auth/actions";
 import type { User } from "@supabase/supabase-js";
+import { toast } from "sonner";
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const MAX_DURATION = 30;
@@ -463,19 +464,9 @@ export default function Home() {
     }
   }, [validateFile, startUpload]);
 
-  const handleRemoveFile = useCallback(() => {
-    setSelectedFile(null);
-    setError("");
-    setVideoUrl("");
-    setUploadProgress(0);
-    setGcsPath("");
-    localStorage.removeItem('videoUrl');
-    localStorage.removeItem('gcsPath');
-  }, []);
-
-  const submitJob = useCallback(async () => {
-    if (!gcsPath || !selectedFile) {
-      setError('No video file to process');
+  const createJobAndTrigger = useCallback(async () => {
+    if (!gcsPath || !uploadedFileName) {
+      setError("Missing video information. Please upload a video first.");
       return;
     }
 
@@ -488,7 +479,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           gcsPath,
-          filename: selectedFile.name,
+          filename: uploadedFileName,
           inpaintMethod: 'opencv',
         }),
       });
@@ -496,29 +487,42 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit job');
+        throw new Error(data.error || 'Failed to create job');
       }
 
-      setError("");
-      setShowAuthDialog(false);
-      
-      alert(`Job submitted successfully! Your video is being processed. Job ID: ${data.jobId}`);
-      
+      toast.success('Processing started!', {
+        description: 'Your video is being processed. You will be notified when it\'s ready.',
+      });
+
     } catch (err: any) {
-      console.error('Error submitting job:', err);
-      setError(err.message || 'Failed to submit job. Please try again.');
+      setError(err.message || 'Failed to start processing. Please try again.');
+      toast.error('Failed to start processing', {
+        description: err.message || 'Please try again.',
+      });
     } finally {
       setIsSubmittingJob(false);
     }
-  }, [gcsPath, selectedFile]);
+  }, [gcsPath, uploadedFileName]);
 
   const handleRemoveWatermark = useCallback(() => {
     if (user) {
-      submitJob();
+      createJobAndTrigger();
     } else {
       setShowAuthDialog(true);
     }
-  }, [user, submitJob]);
+  }, [user, createJobAndTrigger]);
+
+  const handleRemoveFile = useCallback(() => {
+    setSelectedFile(null);
+    setError("");
+    setVideoUrl("");
+    setUploadProgress(0);
+    setGcsPath("");
+    setUploadedFileName("");
+    localStorage.removeItem('videoUrl');
+    localStorage.removeItem('gcsPath');
+    localStorage.removeItem('uploadedFileName');
+  }, []);
 
   if (!isMounted) {
     return (
@@ -584,7 +588,7 @@ export default function Home() {
       <AuthDialog 
         open={showAuthDialog} 
         onOpenChange={setShowAuthDialog}
-        onSuccess={submitJob}
+        onSuccess={createJobAndTrigger}
       />
     </div>
   );
