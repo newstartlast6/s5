@@ -29,9 +29,9 @@ if (process.env.NODE_ENV !== "development") {
   LIFETIME_PLAN_IDS = [process.env.NEXT_PUBLIC_CREEM_LIFETIME_PLAN_ID!];
 } else {
   PLAN_VIDEO_LIMITS = {
-    ["prod_1FVYSkTv3ur6jDliBI2Mt"]: 1000, // Monthly plan: 1000 videos
+    [process.env.NEXT_PUBLIC_CREEM_MONTHLY_PLAN_ID!]: 1000, // Monthly plan: 1000 videos
   };
-  LIFETIME_PLAN_IDS = ["prod_7Z12RwqNonvvu0VTpWzQM"]; // Test lifetime plan ID (different product)
+  LIFETIME_PLAN_IDS = [process.env.NEXT_PUBLIC_CREEM_LIFETIME_PLAN_ID!]; // Test lifetime plan ID (different product)
 }
 
 function verifyCreemSignature(

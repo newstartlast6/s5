@@ -593,6 +593,12 @@ export default function Home() {
       window.history.replaceState({}, '', window.location.pathname);
     }
 
+    const checkoutSuccess = window.location.search.includes('checkout_id=') || 
+                           window.location.search.includes('session_id=');
+    if (checkoutSuccess) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     const supabase = createClient();
     
     if (supabase) {
@@ -629,9 +635,14 @@ export default function Home() {
   useEffect(() => {
     if (!user) return;
     
-    const interval = setInterval(fetchJobs, 10000);
-    return () => clearInterval(interval);
-  }, [user, fetchJobs]);
+    const jobsInterval = setInterval(fetchJobs, 10000);
+    const subscriptionInterval = setInterval(fetchSubscriptionStatus, 5000);
+    
+    return () => {
+      clearInterval(jobsInterval);
+      clearInterval(subscriptionInterval);
+    };
+  }, [user, fetchJobs, fetchSubscriptionStatus]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -874,11 +885,32 @@ export default function Home() {
         description: 'Your video is being processed. You will be notified when it\'s ready.',
       });
 
-      await fetchJobs();
+      const createdJobId = data.jobId;
       
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const waitForJobInHistory = async () => {
+        let attempts = 0;
+        
+        while (true) {
+          const response = await fetch('/api/jobs/list');
+          if (response.ok) {
+            const fetchedData = await response.json();
+            if (fetchedData.jobs) {
+              const jobExists = fetchedData.jobs.some((job: any) => job.id === createdJobId);
+              if (jobExists) {
+                setJobs(fetchedData.jobs);
+                handleRemoveFile();
+                return;
+              }
+            }
+          }
+          
+          attempts++;
+          const delay = Math.min(300 + (attempts * 50), 1000);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      };
       
-      handleRemoveFile();
+      waitForJobInHistory();
 
     } catch (err: any) {
       if (err.message && err.message.includes('Free video limit exceeded')) {

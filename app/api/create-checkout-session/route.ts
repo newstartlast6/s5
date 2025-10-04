@@ -60,9 +60,8 @@ export async function POST(request: Request) {
 
     // Choose product id, apiKey and url
     const productId =
-      // process.env.NODE_ENV === "development" ? "prod_2oNGxUhor4fV6yAVNga2kf" : pId!;
       process.env.NODE_ENV === "development"
-        ? "prod_1FVYSkTv3ur6jDliBI2Mt"
+        ? process.env.NEXT_PUBLIC_CREEM_MONTHLY_PLAN_ID!
         : pId!;
 
     const apiKey =
