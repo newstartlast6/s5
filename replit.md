@@ -4,6 +4,13 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations.
 
 ## Recent Changes
+- **Oct 4, 2025**: Authentication improvements with toast notifications
+  - **Toast notifications**: Added success/error feedback for login and signup
+  - **Loading states**: Visual feedback with spinners on all auth buttons
+  - **Proper error handling**: Detailed error messages for authentication failures
+  - **Supabase integration**: Email/password and Google OAuth authentication
+  - **User feedback**: Toast messages show in top-right corner for all auth actions
+  
 - **Oct 4, 2025**: Split-screen interface with dark theme implementation
   - **Dark theme only**: Forced dark theme, removed light mode and theme toggle
   - **Split-screen layout**: After upload, screen splits into two columns
@@ -38,6 +45,12 @@ A Next.js 15 watermark remover application built with React 19, TypeScript, and 
 - **Package Manager**: npm (using package-lock.json)
 
 ## Features
+- **Authentication System**:
+  - Email/password signup and login with Supabase
+  - Google OAuth sign-in
+  - Toast notifications for success/error feedback
+  - Loading states with spinners on buttons
+  - Email verification support
 - Drag and drop video upload interface
 - File validation (size, format, duration)
 - Real-time error handling
@@ -63,6 +76,9 @@ A Next.js 15 watermark remover application built with React 19, TypeScript, and 
 - next-themes
 - lucide-react icons
 - @google-cloud/storage
+- @supabase/ssr (authentication)
+- @supabase/supabase-js (authentication)
+- sonner (toast notifications)
 - uuid
 
 ## Development

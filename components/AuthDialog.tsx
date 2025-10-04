@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Mail, Lock, User } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { login, signup, signInWithGoogle } from "@/app/auth/actions";
+import { toast } from "sonner";
 
 interface AuthDialogProps {
   open: boolean;
@@ -27,11 +28,21 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       const result = await login(formData);
       if (result?.error) {
         setError(result.error);
+        toast.error("Login failed", {
+          description: result.error,
+        });
       } else {
+        toast.success("Login successful", {
+          description: "Welcome back! You've been signed in.",
+        });
         onOpenChange(false);
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      const errorMsg = "An error occurred. Please try again.";
+      setError(errorMsg);
+      toast.error("Login failed", {
+        description: errorMsg,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -44,11 +55,21 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
       const result = await signup(formData);
       if (result?.error) {
         setError(result.error);
+        toast.error("Signup failed", {
+          description: result.error,
+        });
       } else {
+        toast.success("Account created successfully", {
+          description: "Welcome! Your account has been created. Please check your email to verify your account.",
+        });
         onOpenChange(false);
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      const errorMsg = "An error occurred. Please try again.";
+      setError(errorMsg);
+      toast.error("Signup failed", {
+        description: errorMsg,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +81,11 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     try {
       await signInWithGoogle();
     } catch (err) {
-      setError("Google sign-in failed. Please try again.");
+      const errorMsg = "Google sign-in failed. Please try again.";
+      setError(errorMsg);
+      toast.error("Google sign-in failed", {
+        description: errorMsg,
+      });
       setIsLoading(false);
     }
   };
