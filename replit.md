@@ -4,6 +4,19 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations. The application uses Supabase for authentication and Google Cloud Storage for video uploads.
 
 ## Recent Changes
+- **Oct 4, 2025**: Job history feature and Cloud Run API fixes
+  - **Fixed Cloud Run API**: Changed from ExecutionsClient to JobsClient for proper job execution
+  - **Job History API**: Created /api/jobs/list endpoint to fetch user's video jobs
+  - **Modern Split View UI**: 
+    - Left panel: Upload zone with drag-and-drop or video preview after upload
+    - Right panel: Job history with beautiful card-based list
+    - Real-time job status tracking (uploaded, processing, completed, failed)
+    - Auto-refresh every 10 seconds to update job statuses
+    - Download buttons for completed jobs
+    - Custom scrollbar styling for smooth UX
+  - **Landing Page**: Attractive "Get Started - Sign In" button for non-authenticated users
+  - **Status Badges**: Color-coded status indicators with animations (processing jobs show spinner)
+  
 - **Oct 4, 2025**: GitHub import successfully configured for Replit environment
   - Installed npm dependencies (397 packages)
   - Configured Next.js for Replit proxy with allowedDevOrigins: "*"
