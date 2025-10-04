@@ -376,11 +376,7 @@ function HowItWorks() {
           <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:scale-105 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <CardContent className="p-8 relative text-center">
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center font-bold text-2xl text-primary-foreground border-4 border-background shadow-lg">
-                1
-              </div>
-              
-              <div className="mt-8 mb-6 relative inline-block">
+              <div className="mb-6 relative inline-block">
                 <div className="absolute inset-0 blur-2xl bg-primary/60 animate-pulse" />
                 <div className="relative bg-primary/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto">
                   <Upload className="w-10 h-10 text-primary relative z-10" />
@@ -397,11 +393,7 @@ function HowItWorks() {
           <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:scale-105 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <CardContent className="p-8 relative text-center">
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center font-bold text-2xl text-primary-foreground border-4 border-background shadow-lg">
-                2
-              </div>
-              
-              <div className="mt-8 mb-6 relative inline-block">
+              <div className="mb-6 relative inline-block">
                 <div className="absolute inset-0 blur-2xl bg-primary/60 animate-pulse" />
                 <div className="relative bg-primary/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto">
                   <MousePointerClick className="w-10 h-10 text-primary relative z-10" />
@@ -418,11 +410,7 @@ function HowItWorks() {
           <Card className="group relative overflow-hidden border-2 border-primary/20 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:scale-105 transition-all duration-300">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             <CardContent className="p-8 relative text-center">
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-primary flex items-center justify-center font-bold text-2xl text-primary-foreground border-4 border-background shadow-lg">
-                3
-              </div>
-              
-              <div className="mt-8 mb-6 relative inline-block">
+              <div className="mb-6 relative inline-block">
                 <div className="absolute inset-0 blur-2xl bg-primary/60 animate-pulse" />
                 <div className="relative bg-primary/10 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto">
                   <Download className="w-10 h-10 text-primary relative z-10" />
@@ -497,6 +485,12 @@ function FAQ() {
 }
 
 function Footer() {
+  const handleContactClick = () => {
+    if (typeof window !== 'undefined' && (window as any).$crisp) {
+      (window as any).$crisp.push(['do', 'chat:open']);
+    }
+  };
+
   return (
     <footer className="border-t bg-card/30 backdrop-blur-sm">
       <div className="container mx-auto px-6 md:px-8 py-12">
@@ -533,6 +527,11 @@ function Footer() {
                 <a href="/refunds" className="hover:text-primary transition-colors">
                   Refund Policy
                 </a>
+              </li>
+              <li>
+                <button onClick={handleContactClick} className="hover:text-primary transition-colors text-left">
+                  Contact Us
+                </button>
               </li>
             </ul>
           </div>

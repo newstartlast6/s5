@@ -29,6 +29,31 @@ interface JobHistoryProps {
 }
 
 export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
+  const [downloadingJobId, setDownloadingJobId] = useState<string | null>(null);
+
+  const handleDownload = (job: VideoJob) => {
+    if (!job.output_url) return;
+    
+    setDownloadingJobId(job.id);
+    posthog.capture('job_download_clicked', { job_id: job.id, filename: job.filename });
+
+    const link = document.createElement('a');
+    link.href = job.output_url;
+    link.download = job.filename || 'video.mp4';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('Download started', {
+      description: 'Your video download has been initiated.'
+    });
+    
+    setTimeout(() => {
+      setDownloadingJobId(null);
+    }, 1000);
+  };
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -178,18 +203,20 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                     <Button
                       size="sm"
                       className="bg-primary hover:bg-primary/90"
-                      onClick={() => {
-                        posthog.capture('job_download_clicked', { job_id: job.id, filename: job.filename });
-                        const link = document.createElement('a');
-                        link.href = job.output_url;
-                        link.download = job.filename || 'video.mp4';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
+                      onClick={() => handleDownload(job)}
+                      disabled={downloadingJobId === job.id}
                     >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download
+                      {downloadingJobId === job.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Downloading...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download
+                        </>
+                      )}
                     </Button>
                   )}
                   
