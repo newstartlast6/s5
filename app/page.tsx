@@ -274,6 +274,20 @@ export default function Home() {
   const [gcsPath, setGcsPath] = useState<string>("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
 
+  useEffect(() => {
+    const savedVideoUrl = localStorage.getItem('videoUrl');
+    const savedGcsPath = localStorage.getItem('gcsPath');
+    
+    if (savedVideoUrl && savedGcsPath) {
+      setVideoUrl(savedVideoUrl);
+      setGcsPath(savedGcsPath);
+    }
+
+    if (window.location.search.includes('code=')) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   const validateFile = useCallback(async (file: File): Promise<string | null> => {
     if (file.size > MAX_FILE_SIZE) {
       return `File size exceeds 100MB limit. Your file is ${(file.size / 1024 / 1024).toFixed(1)}MB.`;
@@ -338,6 +352,8 @@ export default function Home() {
         if (xhr.status === 200) {
           setVideoUrl(downloadUrl);
           setIsProcessing(false);
+          localStorage.setItem('videoUrl', downloadUrl);
+          localStorage.setItem('gcsPath', path);
         } else {
           throw new Error('Upload failed');
         }
@@ -381,6 +397,8 @@ export default function Home() {
     setVideoUrl("");
     setUploadProgress(0);
     setGcsPath("");
+    localStorage.removeItem('videoUrl');
+    localStorage.removeItem('gcsPath');
   }, []);
 
   return (
