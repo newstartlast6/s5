@@ -510,7 +510,7 @@ function Footer() {
             </p>
           </div>
 
-          <div>
+          <div className="md:text-right">
             <h3 className="font-semibold text-foreground mb-4">Legal</h3>
             <ul className="space-y-2 text-muted-foreground">
               <li>
@@ -529,7 +529,7 @@ function Footer() {
                 </a>
               </li>
               <li>
-                <button onClick={handleContactClick} className="hover:text-primary transition-colors text-left">
+                <button onClick={handleContactClick} className="hover:text-primary transition-colors md:text-right text-left">
                   Contact Us
                 </button>
               </li>
