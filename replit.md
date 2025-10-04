@@ -3,6 +3,14 @@
 ## Overview
 A Next.js 15 application designed to remove watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
+## Recent Changes
+- **Oct 4, 2025**: Fixed pricing dialog not showing after signup/login when free limit exceeded
+  - Modified error handling in createJobAndTrigger function to detect "Free video limit exceeded" error
+  - When free limit error occurs, pricing dialog now opens automatically instead of just showing error toast
+  - Added PostHog event tracking for 'free_limit_reached' with context when triggered from job creation
+  - Ensures users see subscription options immediately after hitting their free video limit
+  - Tested and verified working with server logs showing successful pricing dialog and checkout flow
+
 ## User Preferences
 I prefer iterative development with small, focused changes.
 Please provide clear and concise explanations.
