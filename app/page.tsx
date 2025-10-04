@@ -142,9 +142,10 @@ interface VideoPreviewProps {
   videoUrl: string;
   onRemove: () => void;
   onRemoveWatermark: () => void;
+  isSubmitting?: boolean;
 }
 
-function VideoPreview({ videoUrl, onRemove, onRemoveWatermark }: VideoPreviewProps) {
+function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = false }: VideoPreviewProps) {
   const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -167,6 +168,7 @@ function VideoPreview({ videoUrl, onRemove, onRemoveWatermark }: VideoPreviewPro
           size="sm"
           onClick={onRemove}
           className="bg-background/20 hover:bg-background/40 backdrop-blur-sm cursor-pointer transition-all hover:scale-105"
+          disabled={isSubmitting}
         >
           <X className="w-4 h-4 mr-2" />
           Start Over
@@ -195,9 +197,19 @@ function VideoPreview({ videoUrl, onRemove, onRemoveWatermark }: VideoPreviewPro
               onClick={onRemoveWatermark}
               className="w-full relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground"
               size="lg"
+              disabled={isSubmitting}
             >
-              <span className="relative z-10">Remove Watermark</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] hover:translate-x-[200%] transition-transform duration-1000" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  <span className="relative z-10">Starting Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span className="relative z-10">Remove Watermark</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] hover:translate-x-[200%] transition-transform duration-1000" />
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -547,11 +559,9 @@ export default function Home() {
         description: 'Your video is being processed. You will be notified when it\'s ready.',
       });
 
+      await fetchJobs();
+      
       handleRemoveFile();
-
-      setTimeout(() => {
-        fetchJobs();
-      }, 500);
 
     } catch (err: any) {
       setError(err.message || 'Failed to start processing. Please try again.');
@@ -626,6 +636,7 @@ export default function Home() {
                   videoUrl={videoUrl}
                   onRemove={handleRemoveFile}
                   onRemoveWatermark={handleRemoveWatermark}
+                  isSubmitting={isSubmittingJob}
                 />
               ) : (
                 <div className="p-8 space-y-8">
