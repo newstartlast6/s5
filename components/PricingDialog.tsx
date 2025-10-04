@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import posthog from 'posthog-js';
 
 interface PricingDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ export default function PricingDialog({ open, onOpenChange, onPurchase }: Pricin
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handlePurchase = async () => {
+    posthog.capture('purchase_initiated', { price: 5, currency: 'USD' });
     setIsProcessing(true);
     await onPurchase();
     setIsProcessing(false);

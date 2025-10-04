@@ -27,6 +27,7 @@ import { createClient } from "@/lib/supabase/client";
 import { signOut } from "@/app/auth/actions";
 import type { User } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import posthog from 'posthog-js';
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024;
 const MAX_DURATION = 30;
@@ -791,6 +792,11 @@ export default function Home() {
     if (validationError) {
       setError(validationError);
     } else {
+      posthog.capture('video_uploaded', {
+        file_name: file.name,
+        file_size: file.size,
+        file_type: file.type,
+      });
       setSelectedFile(file);
       startUpload(file);
     }
@@ -858,12 +864,17 @@ export default function Home() {
   }, [gcsPath, uploadedFileName, thumbnailUrl, fetchJobs, handleRemoveFile]);
 
   const handleRemoveWatermark = useCallback(() => {
+    posthog.capture('watermark_removal_requested', {
+      file_name: uploadedFileName,
+      gcs_path: gcsPath,
+      is_authenticated: !!user,
+    });
     if (user) {
       createJobAndTrigger();
     } else {
       setShowAuthDialog(true);
     }
-  }, [user, createJobAndTrigger]);
+  }, [user, createJobAndTrigger, uploadedFileName, gcsPath]);
 
   if (!isMounted) {
     return (

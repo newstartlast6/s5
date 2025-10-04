@@ -10,6 +10,7 @@ import { Loader2, Mail, Lock, User } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { login, signup, signInWithGoogle } from "@/app/auth/actions";
 import { toast } from "sonner";
+import posthog from 'posthog-js';
 
 interface AuthDialogProps {
   open: boolean;
@@ -32,12 +33,14 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
         toast.error("Login failed", {
           description: result.error,
         });
+        posthog.capture('auth_submitted', { type: 'login', method: 'email', success: false, error: result.error });
       } else {
         toast.success("Login successful", {
           description: "Welcome back! You've been signed in.",
         });
         onOpenChange(false);
         onSuccess?.();
+        posthog.capture('auth_submitted', { type: 'login', method: 'email', success: true });
       }
     } catch (err) {
       const errorMsg = "An error occurred. Please try again.";
@@ -45,6 +48,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
       toast.error("Login failed", {
         description: errorMsg,
       });
+      posthog.capture('auth_submitted', { type: 'login', method: 'email', success: false, error: errorMsg });
     } finally {
       setIsLoading(false);
     }
@@ -60,12 +64,14 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
         toast.error("Signup failed", {
           description: result.error,
         });
+        posthog.capture('auth_submitted', { type: 'signup', method: 'email', success: false, error: result.error });
       } else {
         toast.success("Account created successfully", {
           description: "Welcome! Your account has been created. Please check your email to verify your account.",
         });
         onOpenChange(false);
         onSuccess?.();
+        posthog.capture('auth_submitted', { type: 'signup', method: 'email', success: true });
       }
     } catch (err) {
       const errorMsg = "An error occurred. Please try again.";
@@ -73,6 +79,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
       toast.error("Signup failed", {
         description: errorMsg,
       });
+      posthog.capture('auth_submitted', { type: 'signup', method: 'email', success: false, error: errorMsg });
     } finally {
       setIsLoading(false);
     }
@@ -81,6 +88,7 @@ export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError("");
+    posthog.capture('auth_provider_clicked', { provider: 'google' });
     try {
       await signInWithGoogle();
     } catch (err) {

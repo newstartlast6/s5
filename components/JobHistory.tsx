@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import posthog from 'posthog-js';
 
 export interface VideoJob {
   id: string;
@@ -178,6 +179,7 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                       size="sm"
                       className="bg-primary hover:bg-primary/90"
                       onClick={() => {
+                        posthog.capture('job_download_clicked', { job_id: job.id, filename: job.filename });
                         window.open(job.output_url, '_blank');
                       }}
                     >
@@ -192,6 +194,7 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                       variant="outline"
                       className="border-red-500/30 text-red-500 hover:bg-red-500/10"
                       onClick={() => {
+                        posthog.capture('job_retry_clicked', { job_id: job.id, filename: job.filename });
                         toast.error('Job failed', {
                           description: 'Please try uploading your video again.'
                         });
