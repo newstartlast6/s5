@@ -121,18 +121,19 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                 <div className={cn("flex gap-4 flex-1 min-w-0", job.thumbnail_url ? "items-center" : "items-start")}>
                   {job.thumbnail_url ? (
                     <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 border-2 border-primary/30">
-                      <img 
-                        src={job.thumbnail_url} 
-                        alt={job.filename}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className={cn(
-                        "absolute top-2 right-2 p-1.5 rounded-lg",
-                        statusConfig.bgColor
-                      )}>
-                        <StatusIcon className={cn("w-4 h-4", statusConfig.color, job.status === 'processing' && "animate-spin")} />
-                      </div>
+                    <img 
+                      src={job.thumbnail_url} 
+                      alt={job.filename}
+                      className="block w-full h-full object-cover"
+                    />
+                    <div className={cn(
+                      "absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 p-1.5 rounded-lg",
+                      statusConfig.bgColor
+                    )}>
+                      <StatusIcon className={cn("w-4 h-4", statusConfig.color, job.status === 'processing' && "animate-spin")} />
                     </div>
+                  </div>
+                  
                   ) : (
                     <div className={cn(
                       "p-3 rounded-xl flex-shrink-0",
@@ -163,7 +164,7 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                     </div>
 
                     {job.status === 'processing' && (
-                      <div className={cn("flex items-center gap-2 text-sm text-primary", job.thumbnail_url && "justify-center")}>
+                      <div className="flex items-center gap-2 text-sm text-primary">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span>Processing your video...</span>
                       </div>
