@@ -342,16 +342,20 @@ export default function Home() {
 
     const supabase = createClient();
     
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
+    if (supabase) {
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        setUser(user);
+        setIsLoadingUser(false);
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+      });
+
+      return () => subscription.unsubscribe();
+    } else {
       setIsLoadingUser(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
+    }
   }, []);
 
   const handleSignOut = async () => {
