@@ -7,6 +7,10 @@ import { createClient } from "@/lib/supabase/server";
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
+  if (!supabase) {
+    return { error: "Authentication not configured" };
+  }
+
   const data = {
     email: formData.get("email") as string,
     password: formData.get("password") as string,
@@ -24,6 +28,10 @@ export async function login(formData: FormData) {
 
 export async function signup(formData: FormData) {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return { error: "Authentication not configured" };
+  }
 
   const data = {
     email: formData.get("email") as string,
@@ -48,6 +56,10 @@ export async function signup(formData: FormData) {
 export async function signInWithGoogle() {
   const supabase = await createClient();
 
+  if (!supabase) {
+    return { error: "Authentication not configured" };
+  }
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
@@ -66,7 +78,9 @@ export async function signInWithGoogle() {
 
 export async function signOut() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
   revalidatePath("/", "layout");
   redirect("/");
 }
