@@ -505,6 +505,18 @@ export default function Home() {
     }
   }, [validateFile, startUpload]);
 
+  const handleRemoveFile = useCallback(() => {
+    setSelectedFile(null);
+    setError("");
+    setVideoUrl("");
+    setUploadProgress(0);
+    setGcsPath("");
+    setUploadedFileName("");
+    localStorage.removeItem('videoUrl');
+    localStorage.removeItem('gcsPath');
+    localStorage.removeItem('uploadedFileName');
+  }, []);
+
   const createJobAndTrigger = useCallback(async () => {
     if (!gcsPath || !uploadedFileName) {
       setError("Missing video information. Please upload a video first.");
@@ -535,7 +547,11 @@ export default function Home() {
         description: 'Your video is being processed. You will be notified when it\'s ready.',
       });
 
-      fetchJobs();
+      handleRemoveFile();
+
+      setTimeout(() => {
+        fetchJobs();
+      }, 500);
 
     } catch (err: any) {
       setError(err.message || 'Failed to start processing. Please try again.');
@@ -545,7 +561,7 @@ export default function Home() {
     } finally {
       setIsSubmittingJob(false);
     }
-  }, [gcsPath, uploadedFileName, fetchJobs]);
+  }, [gcsPath, uploadedFileName, fetchJobs, handleRemoveFile]);
 
   const handleRemoveWatermark = useCallback(() => {
     if (user) {
@@ -554,18 +570,6 @@ export default function Home() {
       setShowAuthDialog(true);
     }
   }, [user, createJobAndTrigger]);
-
-  const handleRemoveFile = useCallback(() => {
-    setSelectedFile(null);
-    setError("");
-    setVideoUrl("");
-    setUploadProgress(0);
-    setGcsPath("");
-    setUploadedFileName("");
-    localStorage.removeItem('videoUrl');
-    localStorage.removeItem('gcsPath');
-    localStorage.removeItem('uploadedFileName');
-  }, []);
 
   if (!isMounted) {
     return (
