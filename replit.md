@@ -4,6 +4,14 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations. The application uses Supabase for authentication and Google Cloud Storage for video uploads.
 
 ## Recent Changes
+- **Oct 4, 2025**: Fresh GitHub import successfully set up in Replit environment
+  - Installed all npm dependencies (397 packages)
+  - Configured Next.js to work with Replit proxy (allowedDevOrigins: "*" for iframe support)
+  - Dev server running on 0.0.0.0:5000 as required
+  - Deployment configured with autoscale (build: npm run build, run: npm start)
+  - Verified watermark remover UI is fully functional with dark theme and drag-and-drop upload
+  - Application ready for use
+  
 - **Oct 4, 2025**: Fixed split view persistence during signup flow
   - **Always split view after upload**: Once a video is uploaded, the screen remains in split view permanently
   - **No more layout shifts**: Signup no longer causes full screen transition, maintaining split view throughout

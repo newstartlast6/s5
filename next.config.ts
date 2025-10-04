@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
       allowedOrigins: ["*"],
     },
   },
+  // @ts-ignore - allowedDevOrigins is an experimental feature
+  allowedDevOrigins: ["*"],
 };
 
 export default nextConfig;
