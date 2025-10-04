@@ -4,6 +4,13 @@
 A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations. The application uses Supabase for authentication and Google Cloud Storage for video uploads.
 
 ## Recent Changes
+- **Oct 4, 2025**: Fixed split view persistence during signup flow
+  - **Always split view after upload**: Once a video is uploaded, the screen remains in split view permanently
+  - **No more layout shifts**: Signup no longer causes full screen transition, maintaining split view throughout
+  - **Simplified logic**: Split view shows when there's a video OR when there are jobs (for returning users)
+  - **Smooth user experience**: Upload → split → signup → split (no jump)
+  - **Thumbnail support**: New jobs will display video thumbnails (96x96px) in job history
+  - **Note**: Existing jobs created before this update won't have thumbnails, but all new jobs will
 - **Oct 4, 2025**: GitHub import successfully set up in Replit environment
   - Installed all npm dependencies (397 packages)
   - Verified Next.js 15.5.2 configuration with server actions

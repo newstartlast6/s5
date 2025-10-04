@@ -678,7 +678,7 @@ export default function Home() {
   }
 
   const hasJobs = jobs.length > 0;
-  const shouldShowSplitView = user ? (videoUrl || hasJobs) : videoUrl;
+  const shouldShowSplitView = videoUrl || hasJobs;
 
   return (
     <div className="min-h-screen bg-background">
