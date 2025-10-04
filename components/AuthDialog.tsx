@@ -14,9 +14,10 @@ import { toast } from "sonner";
 interface AuthDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
-export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
+export function AuthDialog({ open, onOpenChange, onSuccess }: AuthDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");

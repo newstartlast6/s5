@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { Storage } from '@google-cloud/storage';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -27,7 +28,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const publicUrl = `https://storage.googleapis.com/${process.env.GOOGLE_CLOUD_STORAGE_BUCKET}/${gcsPath}`;
+    const uploadBucket = process.env.GOOGLE_CLOUD_STORAGE_BUCKET!;
+    const inputBucket = process.env.GOOGLE_CLOUD_INPUT_BUCKET || 'soraremover-sora-remover-input';
+    const outputBucket = process.env.GOOGLE_CLOUD_OUTPUT_BUCKET || 'soraremover-sora-remover-output';
+    const region = process.env.GOOGLE_CLOUD_REGION || 'us-central1';
+
+    const publicUrl = `https://storage.googleapis.com/${uploadBucket}/${gcsPath}`;
     
     const { data: job, error: dbError } = await supabase
       .from('video_jobs')
@@ -49,16 +55,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const inputBucket = process.env.GOOGLE_CLOUD_INPUT_BUCKET || 'soraremover-sora-remover-input';
-    const outputBucket = process.env.GOOGLE_CLOUD_OUTPUT_BUCKET || 'soraremover-sora-remover-output';
-    const region = process.env.GOOGLE_CLOUD_REGION || 'us-central1';
-    
-    const inputVideoUrl = `gs://${inputBucket}/${filename}`;
-    const outputVideoUrl = `gs://${outputBucket}/output-${filename}`;
-    
-    const cloudRunCommand = `gcloud run jobs execute sora-remover-service --region ${region} --set-env-vars INPUT_VIDEO_URL=${inputVideoUrl},OUTPUT_VIDEO_URL=${outputVideoUrl},INPAINT_METHOD=${inpaintMethod},JOB_ID=${job.id}`;
-    
+    const storage = new Storage({
+      projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+      credentials: JSON.parse(
+        Buffer.from(process.env.GOOGLE_CLOUD_CREDENTIALS_BASE64!, 'base64').toString()
+      ),
+    });
+
     try {
+      const sourceBucket = storage.bucket(uploadBucket);
+      const destBucket = storage.bucket(inputBucket);
+      
+      const sourceFile = sourceBucket.file(gcsPath);
+      const destFileName = `${job.id}-${filename}`;
+      const destFile = destBucket.file(destFileName);
+      
+      await sourceFile.copy(destFile);
+      
+      const inputVideoUrl = `gs://${inputBucket}/${destFileName}`;
+      const outputVideoUrl = `gs://${outputBucket}/output-${destFileName}`;
+      
+      const cloudRunCommand = `gcloud run jobs execute sora-remover-service --region ${region} --set-env-vars INPUT_VIDEO_URL=${inputVideoUrl},OUTPUT_VIDEO_URL=${outputVideoUrl},INPAINT_METHOD=${inpaintMethod},JOB_ID=${job.id}`;
+      
       const { stdout, stderr } = await execAsync(cloudRunCommand);
       
       const jobIdMatch = stdout.match(/Job execution created: (.+)/);
@@ -80,8 +98,9 @@ export async function POST(req: NextRequest) {
         cloudJobId: cloudJobId,
         message: 'Job created and Cloud Run job triggered successfully'
       });
-    } catch (execError: any) {
-      console.error('Error executing Cloud Run job:', execError);
+      
+    } catch (copyError: any) {
+      console.error('Error copying file or executing Cloud Run job:', copyError);
       
       await supabase
         .from('video_jobs')
@@ -90,8 +109,8 @@ export async function POST(req: NextRequest) {
       
       return NextResponse.json(
         { 
-          error: 'Failed to trigger Cloud Run job',
-          details: execError.message 
+          error: 'Failed to process job',
+          details: copyError.message 
         },
         { status: 500 }
       );
