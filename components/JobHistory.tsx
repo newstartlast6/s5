@@ -18,6 +18,7 @@ export interface VideoJob {
   input_url: string;
   output_url?: string;
   gcs_output_path?: string;
+  thumbnail_url?: string;
 }
 
 interface JobHistoryProps {
@@ -118,12 +119,28 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div className={cn(
-                    "p-3 rounded-xl flex-shrink-0",
-                    statusConfig.bgColor
-                  )}>
-                    <StatusIcon className={cn("w-6 h-6", statusConfig.color, job.status === 'processing' && "animate-spin")} />
-                  </div>
+                  {job.thumbnail_url ? (
+                    <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 border-2 border-primary/30">
+                      <img 
+                        src={job.thumbnail_url} 
+                        alt={job.filename}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className={cn(
+                        "absolute top-2 right-2 p-1.5 rounded-lg",
+                        statusConfig.bgColor
+                      )}>
+                        <StatusIcon className={cn("w-4 h-4", statusConfig.color, job.status === 'processing' && "animate-spin")} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={cn(
+                      "p-3 rounded-xl flex-shrink-0",
+                      statusConfig.bgColor
+                    )}>
+                      <StatusIcon className={cn("w-6 h-6", statusConfig.color, job.status === 'processing' && "animate-spin")} />
+                    </div>
+                  )}
 
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center gap-3 flex-wrap">

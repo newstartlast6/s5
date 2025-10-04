@@ -328,6 +328,7 @@ export default function Home() {
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [gcsPath, setGcsPath] = useState<string>("");
   const [uploadedFileName, setUploadedFileName] = useState<string>("");
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>("");
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
@@ -357,12 +358,16 @@ export default function Home() {
     const savedVideoUrl = localStorage.getItem('videoUrl');
     const savedGcsPath = localStorage.getItem('gcsPath');
     const savedFileName = localStorage.getItem('uploadedFileName');
+    const savedThumbnailUrl = localStorage.getItem('thumbnailUrl');
     
     if (savedVideoUrl && savedGcsPath) {
       setVideoUrl(savedVideoUrl);
       setGcsPath(savedGcsPath);
       if (savedFileName) {
         setUploadedFileName(savedFileName);
+      }
+      if (savedThumbnailUrl) {
+        setThumbnailUrl(savedThumbnailUrl);
       }
     }
 
@@ -442,6 +447,76 @@ export default function Home() {
     });
   }, []);
 
+  const generateThumbnail = useCallback(async (videoFile: File): Promise<Blob | null> => {
+    return new Promise((resolve) => {
+      const video = document.createElement('video');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      video.onloadeddata = () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        video.currentTime = 0.1;
+      };
+
+      video.onseeked = () => {
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => {
+            URL.revokeObjectURL(video.src);
+            resolve(blob);
+          }, 'image/jpeg', 0.8);
+        } else {
+          resolve(null);
+        }
+      };
+
+      video.onerror = () => {
+        resolve(null);
+      };
+
+      video.src = URL.createObjectURL(videoFile);
+      video.load();
+    });
+  }, []);
+
+  const uploadThumbnail = useCallback(async (thumbnailBlob: Blob, videoFileName: string): Promise<string | null> => {
+    try {
+      const thumbnailFileName = `thumbnail-${videoFileName.replace(/\.[^.]+$/, '.jpg')}`;
+      
+      const response = await fetch('/api/upload/generate-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileName: thumbnailFileName,
+          contentType: 'image/jpeg',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate thumbnail upload URL');
+      }
+
+      const { uploadUrl, downloadUrl } = await response.json();
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'image/jpeg' },
+        body: thumbnailBlob,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload thumbnail');
+      }
+
+      return downloadUrl;
+    } catch (error) {
+      console.error('Error uploading thumbnail:', error);
+      return null;
+    }
+  }, []);
+
   const startUpload = useCallback(async (file: File) => {
     setIsProcessing(true);
     setError("");
@@ -472,14 +547,24 @@ export default function Home() {
         }
       });
 
-      xhr.addEventListener('load', () => {
+      xhr.addEventListener('load', async () => {
         if (xhr.status === 200) {
           setVideoUrl(downloadUrl);
           setUploadedFileName(file.name);
-          setIsProcessing(false);
           localStorage.setItem('videoUrl', downloadUrl);
           localStorage.setItem('gcsPath', path);
           localStorage.setItem('uploadedFileName', file.name);
+          
+          const thumbnailBlob = await generateThumbnail(file);
+          if (thumbnailBlob) {
+            const thumbnailUrl = await uploadThumbnail(thumbnailBlob, file.name);
+            if (thumbnailUrl) {
+              setThumbnailUrl(thumbnailUrl);
+              localStorage.setItem('thumbnailUrl', thumbnailUrl);
+            }
+          }
+          
+          setIsProcessing(false);
         } else {
           throw new Error('Upload failed');
         }
@@ -524,9 +609,11 @@ export default function Home() {
     setUploadProgress(0);
     setGcsPath("");
     setUploadedFileName("");
+    setThumbnailUrl("");
     localStorage.removeItem('videoUrl');
     localStorage.removeItem('gcsPath');
     localStorage.removeItem('uploadedFileName');
+    localStorage.removeItem('thumbnailUrl');
   }, []);
 
   const createJobAndTrigger = useCallback(async () => {
@@ -546,6 +633,7 @@ export default function Home() {
           gcsPath,
           filename: uploadedFileName,
           inpaintMethod: 'opencv',
+          thumbnailUrl: thumbnailUrl || null,
         }),
       });
 

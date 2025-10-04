@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { gcsPath, filename, inpaintMethod = "opencv" } = await req.json();
+    const { gcsPath, filename, inpaintMethod = "opencv", thumbnailUrl = null } = await req.json();
 
     if (!gcsPath || !filename) {
       return NextResponse.json(
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
         status: "uploaded",
         inpaint_method: inpaintMethod,
         gcs_input_path: gcsPath,
+        thumbnail_url: thumbnailUrl,
       })
       .select()
       .single();
