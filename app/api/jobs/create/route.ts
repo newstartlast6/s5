@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Storage } from '@google-cloud/storage';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import { ExecutionsClient } from '@google-cloud/run';
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,10 +36,11 @@ export async function POST(req: NextRequest) {
       .from('video_jobs')
       .insert({
         user_id: user.id,
-        url: publicUrl,
+        input_url: publicUrl,
         filename: filename,
         status: 'uploaded',
         inpaint_method: inpaintMethod,
+        gcs_input_path: gcsPath,
       })
       .select()
       .single();
@@ -75,18 +73,50 @@ export async function POST(req: NextRequest) {
       const inputVideoUrl = `gs://${inputBucket}/${destFileName}`;
       const outputVideoUrl = `gs://${outputBucket}/output-${destFileName}`;
       
-      const cloudRunCommand = `gcloud run jobs execute sora-remover-service --region ${region} --set-env-vars INPUT_VIDEO_URL=${inputVideoUrl},OUTPUT_VIDEO_URL=${outputVideoUrl},INPAINT_METHOD=${inpaintMethod},JOB_ID=${job.id}`;
+      // Update the job with GCS paths
+      await supabase
+        .from('video_jobs')
+        .update({ 
+          gcs_input_path: destFileName,
+          gcs_output_path: `output-${destFileName}`,
+        })
+        .eq('id', job.id);
       
-      const { stdout } = await execAsync(cloudRunCommand);
+      // Use Google Cloud Run SDK to trigger the job
+      const executionsClient = new ExecutionsClient({
+        projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+        credentials: JSON.parse(
+          Buffer.from(process.env.GOOGLE_CLOUD_CREDENTIALS_BASE64!, 'base64').toString()
+        ),
+      });
+
+      const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+      const jobName = `projects/${projectId}/locations/${region}/jobs/sora-remover-service`;
+
+      // Run the job with environment variables
+      const [operation] = await executionsClient.runJob({
+        name: jobName,
+        overrides: {
+          containerOverrides: [{
+            env: [
+              { name: 'INPUT_VIDEO_URL', value: inputVideoUrl },
+              { name: 'OUTPUT_VIDEO_URL', value: outputVideoUrl },
+              { name: 'INPAINT_METHOD', value: inpaintMethod },
+              { name: 'JOB_ID', value: job.id },
+            ],
+          }],
+        },
+      });
+
+      // Wait for the operation to complete and get the result
+      const [response] = await operation.promise();
+      const executionName = response.name || null;
       
-      const jobIdMatch = stdout.match(/Job execution created: (.+)/);
-      const cloudJobId = jobIdMatch ? jobIdMatch[1] : null;
-      
-      if (cloudJobId) {
+      if (executionName) {
         await supabase
           .from('video_jobs')
           .update({ 
-            job_id: cloudJobId,
+            job_id: executionName,
             status: 'processing' 
           })
           .eq('id', job.id);
@@ -95,8 +125,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         jobId: job.id,
-        cloudJobId: cloudJobId,
-        message: 'Job created and Cloud Run job triggered successfully'
+        cloudJobId: executionName,
+        message: 'Job created successfully'
       });
       
     } catch (processError: any) {
@@ -108,10 +138,7 @@ export async function POST(req: NextRequest) {
         .eq('id', job.id);
       
       return NextResponse.json(
-        { 
-          error: 'Failed to process job',
-          details: processError.message 
-        },
+        { error: 'Job failed' },
         { status: 500 }
       );
     }
