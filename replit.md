@@ -1,16 +1,25 @@
 # Watermark Remover
 
 ## Overview
-A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern UI with drag-and-drop file upload, video validation, and theme switching.
+A Next.js 15 watermark remover application built with React 19, TypeScript, and Tailwind CSS. Features a modern dark-themed UI with split-screen video preview, drag-and-drop file upload, video validation, and smooth animations.
 
 ## Recent Changes
+- **Oct 4, 2025**: Split-screen interface with dark theme implementation
+  - **Dark theme only**: Forced dark theme, removed light mode and theme toggle
+  - **Split-screen layout**: After upload, screen splits into two columns
+    - Left: Video preview with orientation detection (landscape/portrait)
+    - Right: Demo component with teal-themed design
+  - **Video orientation detection**: Automatically detects and displays landscape or portrait videos correctly
+  - **Smooth animations**: Slide-in and fade-in transitions for split-screen view
+  - **Modern teal design**: Clean, beautiful UI with consistent teal accent colors
+  - **"Start Over" button**: Replace uploaded video with new upload
+  
 - **Oct 4, 2025**: GitHub import successfully configured for Replit
   - Installed npm dependencies (276 packages including @google-cloud/storage, uuid)
   - Configured Next.js for Replit proxy (allowedDevOrigins: "*")
   - Verified dev server running on 0.0.0.0:5000
   - Configured autoscale deployment (build: npm run build, run: npm start)
   - Watermark remover landing page with drag-and-drop file upload operational
-  - Theme toggle with dark/light mode support working
   - File validation configured (100MB max, 30 seconds max duration, MP4/MOV/AVI/WebM formats)
   - **Google Cloud Storage integration implemented**:
     - Secure presigned URL upload with XMLHttpRequest for progress tracking
@@ -25,20 +34,24 @@ A Next.js 15 watermark remover application built with React 19, TypeScript, and 
 - **Styling**: Tailwind CSS 4 with custom components
 - **Component Library**: Radix UI components with custom styling
 - **Forms**: React Hook Form with Zod validation
-- **Theme**: next-themes for dark/light mode switching
+- **Theme**: next-themes configured for dark mode only
 - **Package Manager**: npm (using package-lock.json)
 
 ## Features
 - Drag and drop video upload interface
 - File validation (size, format, duration)
 - Real-time error handling
-- Theme toggle (dark/light mode)
+- **Dark theme only** - modern, clean design with teal accents
+- **Split-screen layout** after video upload
+- **Automatic video orientation detection** (landscape/portrait)
+- **Smooth animations** - slide-in and fade-in transitions
 - Responsive design
-- Animated UI elements
+- Animated UI elements with teal glow effects
 - **Google Cloud Storage upload with presigned URLs**
 - **Real-time upload progress tracking**
 - **Video preview after successful upload**
-- **Download uploaded videos**
+- **Demo component** showing example output
+- **Start over functionality** to upload new videos
 
 ## Tech Stack
 - TypeScript 5
@@ -56,7 +69,7 @@ A Next.js 15 watermark remover application built with React 19, TypeScript, and 
 - Dev server runs on port 5000 (Replit requirement)
 - Server binds to 0.0.0.0 to work with Replit proxy
 - Hot reload enabled via Next.js development mode
-- Theme provider configured for system preference detection
+- Theme provider configured for dark mode only (system detection disabled)
 
 ## Environment Configuration
 - **Dev Server**: Runs on 0.0.0.0:5000 (Replit requirement)
