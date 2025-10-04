@@ -362,7 +362,7 @@ export default function Home() {
         throw new Error('Failed to generate upload URL');
       }
 
-      const { uploadUrl, gcsPath: path } = await response.json();
+      const { uploadUrl, downloadUrl, gcsPath: path } = await response.json();
       setGcsPath(path);
 
       const xhr = new XMLHttpRequest();
@@ -374,19 +374,9 @@ export default function Home() {
         }
       });
 
-      xhr.addEventListener('load', async () => {
+      xhr.addEventListener('load', () => {
         if (xhr.status === 200) {
-          const urlResponse = await fetch('/api/upload/get-url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ gcsPath: path }),
-          });
-          
-          if (urlResponse.ok) {
-            const { url } = await urlResponse.json();
-            setVideoUrl(url);
-          }
-          
+          setVideoUrl(downloadUrl);
           setIsProcessing(false);
         } else {
           throw new Error('Upload failed');

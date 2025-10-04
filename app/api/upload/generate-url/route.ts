@@ -29,8 +29,15 @@ export async function POST(req: NextRequest) {
       contentType: contentType || 'video/mp4',
     });
     
+    const [downloadUrl] = await file.getSignedUrl({
+      version: 'v4',
+      action: 'read',
+      expires: Date.now() + 60 * 60 * 1000,
+    });
+    
     return NextResponse.json({
       uploadUrl,
+      downloadUrl,
       gcsPath,
       fileId,
     });

@@ -6,9 +6,6 @@ const nextConfig: NextConfig = {
       allowedOrigins: ["*"],
     },
   },
-  devIndicators: {
-    appIsrStatus: false,
-  },
   allowedDevOrigins: ["*"],
 };
 
