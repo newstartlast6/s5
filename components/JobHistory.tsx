@@ -180,7 +180,12 @@ export function JobHistory({ jobs, isLoading, onRefresh }: JobHistoryProps) {
                       className="bg-primary hover:bg-primary/90"
                       onClick={() => {
                         posthog.capture('job_download_clicked', { job_id: job.id, filename: job.filename });
-                        window.open(job.output_url, '_blank');
+                        const link = document.createElement('a');
+                        link.href = job.output_url;
+                        link.download = job.filename || 'video.mp4';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
                       }}
                     >
                       <Download className="w-4 h-4 mr-2" />

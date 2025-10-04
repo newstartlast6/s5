@@ -169,7 +169,7 @@ function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = fa
   }, [videoUrl]);
 
   return (
-    <div className="h-full flex items-center justify-center p-8 animate-in fade-in slide-in-from-left duration-500">
+    <div className="h-full flex items-start justify-center p-8 animate-in fade-in slide-in-from-left duration-500">
       <div className="w-full max-w-4xl space-y-6">
         <Button
           variant="ghost"
@@ -284,9 +284,14 @@ interface HeaderProps {
   user: User | null;
   onSignOut: () => void;
   hasActiveSubscription?: boolean;
+  subscriptionData?: {
+    hasSubscription: boolean;
+    freeVideosRemaining: number;
+    hasUnlimitedAccess: boolean;
+  } | null;
 }
 
-function Header({ user, onSignOut, hasActiveSubscription }: HeaderProps) {
+function Header({ user, onSignOut, hasActiveSubscription, subscriptionData }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-6 md:px-8 flex h-16 items-center justify-between">
@@ -300,37 +305,53 @@ function Header({ user, onSignOut, hasActiveSubscription }: HeaderProps) {
           </span>
         </div>
         
-        {user && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <UserIcon className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium leading-none">Account</p>
-                    {hasActiveSubscription && (
-                      <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary/20 text-primary border border-primary/40">
-                        Pro
-                      </span>
-                    )}
+        <div className="flex items-center gap-4">
+          {user && subscriptionData && (
+            <div className="px-3 py-1.5 rounded-full bg-primary/10 border border-primary/30">
+              {subscriptionData.hasSubscription ? (
+                <span className="text-sm font-semibold text-primary">
+                  Pro: Unlimited Videos
+                </span>
+              ) : (
+                <span className="text-sm font-semibold text-foreground">
+                  Free: {subscriptionData.freeVideosRemaining} {subscriptionData.freeVideosRemaining === 1 ? 'Video' : 'Videos'} Left
+                </span>
+              )}
+            </div>
+          )}
+          
+          {user && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <UserIcon className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium leading-none">Account</p>
+                      {hasActiveSubscription && (
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-primary/20 text-primary border border-primary/40">
+                          Pro
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs leading-none text-muted-foreground truncate">
+                      {user.email}
+                    </p>
                   </div>
-                  <p className="text-xs leading-none text-muted-foreground truncate">
-                    {user.email}
-                  </p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={onSignOut} className="cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Sign out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onSignOut} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </header>
   );
@@ -542,6 +563,11 @@ export default function Home() {
   const [jobs, setJobs] = useState<VideoJob[]>([]);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [subscriptionData, setSubscriptionData] = useState<{
+    hasSubscription: boolean;
+    freeVideosRemaining: number;
+    hasUnlimitedAccess: boolean;
+  } | null>(null);
 
   const fetchSubscriptionStatus = useCallback(async () => {
     try {
@@ -550,6 +576,11 @@ export default function Home() {
         const data = await response.json();
         console.log('Subscription status response:', data);
         setHasActiveSubscription(data.hasSubscription || false);
+        setSubscriptionData({
+          hasSubscription: data.hasSubscription || false,
+          freeVideosRemaining: data.freeVideosRemaining || 0,
+          hasUnlimitedAccess: data.hasUnlimitedAccess || false,
+        });
         console.log('hasActiveSubscription set to:', data.hasSubscription || false);
       }
     } catch (error) {
@@ -993,7 +1024,7 @@ export default function Home() {
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-background">
-        <Header user={user} onSignOut={handleSignOut} hasActiveSubscription={hasActiveSubscription} />
+        <Header user={user} onSignOut={handleSignOut} hasActiveSubscription={hasActiveSubscription} subscriptionData={subscriptionData} />
       </div>
     );
   }
@@ -1003,7 +1034,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header user={user} onSignOut={handleSignOut} />
+      <Header user={user} onSignOut={handleSignOut} hasActiveSubscription={hasActiveSubscription} subscriptionData={subscriptionData} />
       
       {!shouldShowSplitView ? (
         <>
