@@ -843,6 +843,8 @@ export default function Home() {
 
       await fetchJobs();
       
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       handleRemoveFile();
 
     } catch (err: any) {
