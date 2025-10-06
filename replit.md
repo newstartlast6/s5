@@ -4,6 +4,17 @@
 A Next.js 15 application designed to remove Sora watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
 ## Recent Changes
+- **Oct 6, 2025**: Reorganized mask editor UI with full-screen overlay layout
+  - Modified VideoMaskEditor to display as full-screen overlay with 2-column grid layout
+  - Video preview with canvas overlay positioned on left side
+  - Mask control panel positioned on right side for easy access
+  - Added "Edit Logo Manually" button to VideoPreview component that triggers mask editor
+  - Implemented video playback controls: Play/pause button and ±3 second jump buttons integrated directly in video controls
+  - Video controls properly wired to shared togglePlayPause and jumpTime functions for consistent playback behavior
+  - Remove Watermark button available in mask control panel for processing from editing mode
+  - Layout maintains proper grid structure across different viewport sizes
+  - Closing overlay properly restores background state
+  - All changes architect-reviewed and approved for code quality and UX
 - **Oct 6, 2025**: Implemented comprehensive mask editing feature for manual watermark removal
   - Added mask type selection (Manual/AI) that appears after video upload
   - Created VideoMaskEditor component with canvas overlay for drawing masks on videos
