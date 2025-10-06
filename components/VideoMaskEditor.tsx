@@ -529,15 +529,15 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
           </Button>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr,400px] gap-6">
+        <div className="grid lg:grid-cols-[1.2fr,350px] gap-4">
           {/* Video and Canvas */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Card className="relative overflow-hidden bg-black">
-              <div ref={containerRef} className="relative flex items-center justify-center max-h-[70vh]">
+              <div ref={containerRef} className="relative flex items-center justify-center max-h-[55vh]">
                 <video
                   ref={videoRef}
                   src={videoUrl}
-                  className="max-w-full max-h-[70vh] object-contain"
+                  className="max-w-full max-h-[55vh] object-contain"
                   playsInline
                 />
                 <canvas
@@ -560,20 +560,20 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
                 </Button>
                 <div className="flex items-center gap-2">
                   <Button 
-                    onClick={() => jumpTime(-5)} 
+                    onClick={() => jumpTime(-3)} 
                     size="sm" 
                     variant="outline"
                     className="h-9 px-3"
                   >
-                    -5s
+                    -3s
                   </Button>
                   <Button 
-                    onClick={() => jumpTime(5)} 
+                    onClick={() => jumpTime(3)} 
                     size="sm" 
                     variant="outline"
                     className="h-9 px-3"
                   >
-                    +5s
+                    +3s
                   </Button>
                 </div>
                 <div className="flex-1">

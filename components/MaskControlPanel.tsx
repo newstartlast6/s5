@@ -41,16 +41,16 @@ export function MaskControlPanel({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Action Buttons */}
       <Card>
-        <CardContent className="p-4 space-y-3">
-          <Button onClick={onAddMask} className="w-full" variant="outline">
+        <CardContent className="p-3 space-y-2">
+          <Button onClick={onAddMask} className="w-full" variant="outline" size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Add Mask
           </Button>
           {masks.length > 0 && (
-            <Button onClick={onDeleteAll} variant="destructive" className="w-full">
+            <Button onClick={onDeleteAll} variant="destructive" className="w-full" size="sm">
               <Trash2 className="w-4 h-4 mr-2" />
               Delete All
             </Button>
@@ -60,19 +60,27 @@ export function MaskControlPanel({
 
       {/* Masks List */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">
             Watermark Masks ({masks.length})
           </CardTitle>
+          {/* Help Text at Top */}
+          {masks.length > 0 && (
+            <div className="mt-2 p-2 bg-muted/50 rounded-lg border border-muted">
+              <p className="text-xs text-muted-foreground">
+                💡 <span className="font-medium">Tip:</span> Adjust the start and end time of each mask for better accuracy. The mask will only appear during its specified time range.
+              </p>
+            </div>
+          )}
         </CardHeader>
-        <CardContent className="p-4">
+        <CardContent className="p-3">
           {masks.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-sm">
               <p>No masks created yet</p>
               <p className="mt-2">Click &quot;Add Mask&quot; or draw on the video</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+            <div className="space-y-2 max-h-[50vh] overflow-y-auto">
               {masks.map((mask, index) => {
                 const isSelected = mask.id === selectedMaskId;
                 const isVisible = currentTime >= mask.startTime && currentTime <= mask.endTime;
@@ -284,15 +292,6 @@ export function MaskControlPanel({
               })}
             </div>
           )}
-          
-          {/* Help Text */}
-          {masks.length > 0 && (
-            <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-muted">
-              <p className="text-xs text-muted-foreground">
-                💡 <span className="font-medium">Tip:</span> Adjust the start and end time of each mask for better accuracy. The mask will only appear during its specified time range.
-              </p>
-            </div>
-          )}
         </CardContent>
       </Card>
 
@@ -300,7 +299,6 @@ export function MaskControlPanel({
       {masks.length > 0 && (
         <Button
           onClick={onProcess}
-          size="lg"
           className="w-full bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90"
         >
           <Sparkles className="w-4 h-4 mr-2" />
