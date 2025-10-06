@@ -65,27 +65,28 @@ export function MaskControlPanel({
             Watermark Masks ({masks.length})
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3 max-h-[60vh] overflow-y-auto">
+        <CardContent className="p-4">
           {masks.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground text-sm">
               <p>No masks created yet</p>
               <p className="mt-2">Click &quot;Add Mask&quot; or draw on the video</p>
             </div>
           ) : (
-            masks.map((mask, index) => {
-              const isSelected = mask.id === selectedMaskId;
-              const isVisible = currentTime >= mask.startTime && currentTime <= mask.endTime;
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+              {masks.map((mask, index) => {
+                const isSelected = mask.id === selectedMaskId;
+                const isVisible = currentTime >= mask.startTime && currentTime <= mask.endTime;
 
-              return (
-                <Card
-                  key={mask.id}
-                  className={cn(
-                    "relative transition-all cursor-pointer",
-                    isSelected && "ring-2 ring-primary shadow-lg"
-                  )}
-                  onClick={() => onSelectMask(mask.id)}
-                >
-                  <CardContent className="p-4 space-y-3">
+                return (
+                  <Card
+                    key={mask.id}
+                    className={cn(
+                      "relative transition-all cursor-pointer",
+                      isSelected && "ring-2 ring-primary shadow-lg"
+                    )}
+                    onClick={() => onSelectMask(mask.id)}
+                  >
+                    <CardContent className="p-3 space-y-2">
                     {/* Header */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -277,10 +278,20 @@ export function MaskControlPanel({
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+          
+          {/* Help Text */}
+          {masks.length > 0 && (
+            <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-muted">
+              <p className="text-xs text-muted-foreground">
+                💡 <span className="font-medium">Tip:</span> Adjust the start and end time of each mask for better accuracy. The mask will only appear during its specified time range.
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>
