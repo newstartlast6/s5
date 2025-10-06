@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Trash2, Plus, Copy, Sparkles } from "lucide-react";
+import { Trash2, Plus, Copy, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Mask } from "@/lib/types/mask";
 
@@ -25,6 +25,7 @@ interface MaskControlPanelProps {
   onTogglePlayPause?: () => void;
   onJumpTime?: (seconds: number) => void;
   isPlaying?: boolean;
+  isProcessing?: boolean;
 }
 
 export function MaskControlPanel({
@@ -39,6 +40,7 @@ export function MaskControlPanel({
   onAddMask,
   onDeleteAll,
   onProcess,
+  isProcessing = false,
 }: MaskControlPanelProps) {
   const formatTime = (time: number) => {
     return `${time.toFixed(1)}s`;
@@ -303,10 +305,20 @@ export function MaskControlPanel({
       {masks.length > 0 && (
         <Button
           onClick={onProcess}
-          className="w-full bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90"
+          disabled={isProcessing}
+          className="w-full bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 disabled:opacity-70"
         >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Remove Watermark
+          {isProcessing ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Remove Watermark
+            </>
+          )}
         </Button>
       )}
     </div>

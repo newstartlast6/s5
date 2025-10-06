@@ -14,9 +14,10 @@ interface VideoMaskEditorProps {
   onClose: () => void;
   onProcessMasks: (masks: Mask[]) => void;
   inlineMode?: boolean;
+  isProcessing?: boolean;
 }
 
-export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMaskEditorProps) {
+export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks, isProcessing = false }: VideoMaskEditorProps) {
   const [masks, setMasks] = useState<Mask[]>([]);
   const [selectedMaskId, setSelectedMaskId] = useState<string | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -530,9 +531,9 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
           </Button>
         </div>
 
-        <div className="flex-1 grid grid-cols-2 divide-x">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 lg:divide-x overflow-auto">
           {/* Left: Video and Canvas */}
-          <div className="p-6 flex flex-col space-y-3">
+          <div className="p-4 md:p-6 flex flex-col space-y-3">
             <Card className="relative overflow-hidden bg-black flex-1">
               <div ref={containerRef} className="relative flex items-center justify-center h-full">
                 <video
@@ -600,7 +601,7 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
           </div>
 
           {/* Right: Mask Controls */}
-          <div className="overflow-auto">
+          <div className="overflow-auto p-4 md:p-6">
             <MaskControlPanel
               masks={masks}
               selectedMaskId={selectedMaskId}
@@ -613,6 +614,7 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
               onAddMask={addNewMask}
               onDeleteAll={deleteAllMasks}
               onProcess={() => onProcessMasks(masks)}
+              isProcessing={isProcessing}
             />
           </div>
         </div>

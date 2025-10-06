@@ -1140,6 +1140,7 @@ export default function Home() {
           videoUrl={videoUrl}
           onClose={handleCloseMaskEditor}
           onProcessMasks={handleProcessMasks}
+          isProcessing={isSubmittingJob}
         />
       )}
       
@@ -1183,7 +1184,7 @@ export default function Home() {
         </>
       ) : (
         <main className="h-[calc(100vh-4rem)]">
-          <div className="grid grid-cols-2 h-full divide-x divide-border">
+          <div className="grid grid-cols-1 md:grid-cols-2 h-full md:divide-x divide-border">
             <div className="relative">
               {videoUrl ? (
                 <VideoPreview
