@@ -79,6 +79,29 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
           });
         }
 
+        // Draw delete button (X) in top-right corner
+        const deleteButtonSize = 24;
+        const deleteButtonX = mask.x + mask.width - deleteButtonSize - 5;
+        const deleteButtonY = mask.y + 5;
+        
+        // Draw delete button background
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath();
+        ctx.arc(deleteButtonX + deleteButtonSize / 2, deleteButtonY + deleteButtonSize / 2, deleteButtonSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Draw X icon
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+        const xOffset = 6;
+        ctx.beginPath();
+        ctx.moveTo(deleteButtonX + xOffset, deleteButtonY + xOffset);
+        ctx.lineTo(deleteButtonX + deleteButtonSize - xOffset, deleteButtonY + deleteButtonSize - xOffset);
+        ctx.moveTo(deleteButtonX + deleteButtonSize - xOffset, deleteButtonY + xOffset);
+        ctx.lineTo(deleteButtonX + xOffset, deleteButtonY + deleteButtonSize - xOffset);
+        ctx.stroke();
+
         // Draw label
         ctx.fillStyle = isSelected ? "#0ba5ac" : "#0ba5accc";
         ctx.font = "12px sans-serif";
@@ -107,13 +130,20 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
     if (!video || !canvas || !container) return;
 
     const syncDimensions = () => {
-      const containerRect = container.getBoundingClientRect();
+      // Get the video's actual displayed dimensions
+      const videoRect = video.getBoundingClientRect();
       const oldWidth = canvas.width;
       const oldHeight = canvas.height;
-      const newWidth = containerRect.width;
-      const newHeight = containerRect.height;
+      const newWidth = videoRect.width;
+      const newHeight = videoRect.height;
       
-      // Update canvas dimensions
+      // Position canvas to match video position
+      canvas.style.left = `${videoRect.left - container.getBoundingClientRect().left}px`;
+      canvas.style.top = `${videoRect.top - container.getBoundingClientRect().top}px`;
+      canvas.style.width = `${newWidth}px`;
+      canvas.style.height = `${newHeight}px`;
+      
+      // Update canvas dimensions (for drawing resolution)
       canvas.width = newWidth;
       canvas.height = newHeight;
       
@@ -224,9 +254,31 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
     return x >= mask.x && x <= mask.x + mask.width && y >= mask.y && y <= mask.y + mask.height;
   };
 
+  // Check if point is on delete button
+  const isPointOnDeleteButton = (x: number, y: number, mask: Mask): boolean => {
+    const deleteButtonSize = 24;
+    const deleteButtonX = mask.x + mask.width - deleteButtonSize - 5;
+    const deleteButtonY = mask.y + 5;
+    const centerX = deleteButtonX + deleteButtonSize / 2;
+    const centerY = deleteButtonY + deleteButtonSize / 2;
+    const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+    return distance <= deleteButtonSize / 2;
+  };
+
   // Mouse down handler
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const pos = getMousePos(e);
+    
+    // Check if clicking on delete button first
+    const maskToDelete = masks
+      .filter((m) => currentTime >= m.startTime && currentTime <= m.endTime)
+      .reverse()
+      .find((m) => isPointOnDeleteButton(pos.x, pos.y, m));
+    
+    if (maskToDelete) {
+      deleteMask(maskToDelete.id);
+      return;
+    }
     
     // Check if clicking on existing mask
     const clickedMask = masks
@@ -279,6 +331,11 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
       .filter((m) => currentTime >= m.startTime && currentTime <= m.endTime)
       .reverse()
       .find((m) => {
+        // Check delete button first
+        if (isPointOnDeleteButton(pos.x, pos.y, m)) {
+          canvas.style.cursor = "pointer";
+          return true;
+        }
         const handle = getResizeHandle(pos.x, pos.y, m);
         if (handle) {
           const cursors = { se: "nwse-resize", ne: "nesw-resize", sw: "nesw-resize", nw: "nwse-resize" };
@@ -468,16 +525,16 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
           {/* Video and Canvas */}
           <div className="space-y-4">
             <Card className="relative overflow-hidden bg-black">
-              <div ref={containerRef} className="relative aspect-video">
+              <div ref={containerRef} className="relative flex items-center justify-center max-h-[70vh]">
                 <video
                   ref={videoRef}
                   src={videoUrl}
-                  className="w-full h-full object-contain"
+                  className="max-w-full max-h-[70vh] object-contain"
                   playsInline
                 />
                 <canvas
                   ref={canvasRef}
-                  className="absolute inset-0 w-full h-full"
+                  className="absolute"
                   onMouseDown={handleMouseDown}
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
