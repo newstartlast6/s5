@@ -156,9 +156,14 @@ interface VideoPreviewProps {
   isSubmitting?: boolean;
   selectedMethod: 'fast' | 'quality';
   onMethodChange: (method: 'fast' | 'quality') => void;
+  onEditManually?: () => void;
+  isEditMode?: boolean;
+  masks?: Mask[];
+  onMasksChange?: (masks: Mask[]) => void;
+  videoRef?: React.RefObject<HTMLVideoElement>;
 }
 
-function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = false, selectedMethod, onMethodChange }: VideoPreviewProps) {
+function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = false, selectedMethod, onMethodChange, onEditManually }: VideoPreviewProps) {
   const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -240,24 +245,39 @@ function VideoPreview({ videoUrl, onRemove, onRemoveWatermark, isSubmitting = fa
               </button>
             </div>
             
-            <Button
-              onClick={onRemoveWatermark}
-              className="w-full relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground"
-              size="lg"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  <span className="relative z-10">Starting Processing...</span>
-                </>
-              ) : (
-                <>
-                  <span className="relative z-10">Remove Watermark</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] hover:translate-x-[200%] transition-transform duration-1000" />
-                </>
+            <div className="space-y-2">
+              <Button
+                onClick={onRemoveWatermark}
+                className="w-full relative overflow-hidden bg-primary hover:bg-primary/90 text-primary-foreground"
+                size="lg"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    <span className="relative z-10">Starting Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="relative z-10">Remove Watermark</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] hover:translate-x-[200%] transition-transform duration-1000" />
+                  </>
+                )}
+              </Button>
+              
+              {onEditManually && (
+                <Button
+                  onClick={onEditManually}
+                  variant="outline"
+                  className="w-full"
+                  size="lg"
+                  disabled={isSubmitting}
+                >
+                  <Wand2 className="w-5 h-5 mr-2" />
+                  Edit Logo Manually
+                </Button>
               )}
-            </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -1074,6 +1094,10 @@ export default function Home() {
     }
   }, []);
 
+  const handleEditManually = useCallback(() => {
+    setMaskEditorMode('editing');
+  }, []);
+
   const handleProcessMasks = useCallback((processedMasks: Mask[]) => {
     setMasks(processedMasks);
     setMaskEditorMode('none');
@@ -1108,15 +1132,6 @@ export default function Home() {
         <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-40 overflow-auto flex items-center justify-center">
           <MaskTypeSelection onSelect={handleMaskTypeSelect} />
         </div>
-      )}
-
-      {/* Mask Editor Overlay */}
-      {maskEditorMode === 'editing' && videoUrl && (
-        <VideoMaskEditor
-          videoUrl={videoUrl}
-          onClose={handleCloseMaskEditor}
-          onProcessMasks={handleProcessMasks}
-        />
       )}
       
       {!shouldShowSplitView ? (
@@ -1169,6 +1184,7 @@ export default function Home() {
                   isSubmitting={isSubmittingJob}
                   selectedMethod={selectedMethod}
                   onMethodChange={setSelectedMethod}
+                  onEditManually={handleEditManually}
                 />
               ) : (
                 <div className="p-8 space-y-8">
@@ -1198,7 +1214,13 @@ export default function Home() {
             </div>
             
             <div className="relative animate-in fade-in slide-in-from-right duration-500">
-              {user && hasJobs ? (
+              {maskEditorMode === 'editing' && videoUrl ? (
+                <VideoMaskEditor
+                  videoUrl={videoUrl}
+                  onClose={handleCloseMaskEditor}
+                  onProcessMasks={handleProcessMasks}
+                />
+              ) : user && hasJobs ? (
                 <JobHistory jobs={jobs} isLoading={isLoadingJobs} onRefresh={fetchJobs} />
               ) : (
                 <DemoComponent />

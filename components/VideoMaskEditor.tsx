@@ -518,10 +518,10 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
   };
 
   return (
-    <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-50 overflow-auto">
-      <div className="container mx-auto p-6 min-h-screen">
+    <div className="h-full overflow-auto">
+      <div className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
+          <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
             Mask Editor
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
@@ -529,75 +529,7 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
           </Button>
         </div>
 
-        <div className="grid lg:grid-cols-[1.2fr,350px] gap-4">
-          {/* Video and Canvas */}
-          <div className="space-y-3">
-            <Card className="relative overflow-hidden bg-black">
-              <div ref={containerRef} className="relative flex items-center justify-center max-h-[55vh]">
-                <video
-                  ref={videoRef}
-                  src={videoUrl}
-                  className="max-w-full max-h-[55vh] object-contain"
-                  playsInline
-                />
-                <canvas
-                  ref={canvasRef}
-                  className="absolute"
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                  style={{ cursor: "crosshair" }}
-                />
-              </div>
-            </Card>
-
-            {/* Video Controls */}
-            <Card className="p-4">
-              <div className="flex items-center gap-4">
-                <Button onClick={togglePlayPause} size="icon" variant="outline">
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                </Button>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    onClick={() => jumpTime(-3)} 
-                    size="sm" 
-                    variant="outline"
-                    className="h-9 px-3"
-                  >
-                    -3s
-                  </Button>
-                  <Button 
-                    onClick={() => jumpTime(3)} 
-                    size="sm" 
-                    variant="outline"
-                    className="h-9 px-3"
-                  >
-                    +3s
-                  </Button>
-                </div>
-                <div className="flex-1">
-                  <input
-                    type="range"
-                    min={0}
-                    max={videoDuration}
-                    step={0.01}
-                    value={currentTime}
-                    onChange={(e) => {
-                      if (videoRef.current) {
-                        videoRef.current.currentTime = parseFloat(e.target.value);
-                      }
-                    }}
-                    className="w-full"
-                  />
-                </div>
-                <span className="text-sm text-muted-foreground min-w-24 text-right">
-                  {currentTime.toFixed(1)}s / {videoDuration.toFixed(1)}s
-                </span>
-              </div>
-            </Card>
-          </div>
-
+        <div className="space-y-3">
           {/* Mask Controls */}
           <MaskControlPanel
             masks={masks}
@@ -611,6 +543,10 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
             onAddMask={addNewMask}
             onDeleteAll={deleteAllMasks}
             onProcess={() => onProcessMasks(masks)}
+            videoRef={videoRef}
+            onTogglePlayPause={togglePlayPause}
+            onJumpTime={jumpTime}
+            isPlaying={isPlaying}
           />
         </div>
       </div>

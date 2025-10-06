@@ -21,6 +21,10 @@ interface MaskControlPanelProps {
   onAddMask: () => void;
   onDeleteAll: () => void;
   onProcess: () => void;
+  videoRef?: React.RefObject<HTMLVideoElement | null>;
+  onTogglePlayPause?: () => void;
+  onJumpTime?: (seconds: number) => void;
+  isPlaying?: boolean;
 }
 
 export function MaskControlPanel({
