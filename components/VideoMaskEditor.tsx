@@ -13,6 +13,7 @@ interface VideoMaskEditorProps {
   videoUrl: string;
   onClose: () => void;
   onProcessMasks: (masks: Mask[]) => void;
+  inlineMode?: boolean;
 }
 
 export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMaskEditorProps) {
@@ -518,36 +519,102 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
   };
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
+    <div className="fixed inset-0 bg-background z-50">
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
-            Mask Editor
+            Edit Watermark Masks
           </h2>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="w-5 h-5" />
           </Button>
         </div>
 
-        <div className="space-y-3">
-          {/* Mask Controls */}
-          <MaskControlPanel
-            masks={masks}
-            selectedMaskId={selectedMaskId}
-            videoDuration={videoDuration}
-            currentTime={currentTime}
-            onSelectMask={setSelectedMaskId}
-            onUpdateMask={updateMask}
-            onDeleteMask={deleteMask}
-            onDuplicateMask={duplicateMask}
-            onAddMask={addNewMask}
-            onDeleteAll={deleteAllMasks}
-            onProcess={() => onProcessMasks(masks)}
-            videoRef={videoRef}
-            onTogglePlayPause={togglePlayPause}
-            onJumpTime={jumpTime}
-            isPlaying={isPlaying}
-          />
+        <div className="flex-1 grid grid-cols-2 divide-x">
+          {/* Left: Video and Canvas */}
+          <div className="p-6 flex flex-col space-y-3">
+            <Card className="relative overflow-hidden bg-black flex-1">
+              <div ref={containerRef} className="relative flex items-center justify-center h-full">
+                <video
+                  ref={videoRef}
+                  src={videoUrl}
+                  className="max-w-full max-h-full object-contain"
+                  playsInline
+                />
+                <canvas
+                  ref={canvasRef}
+                  className="absolute"
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  style={{ cursor: "crosshair" }}
+                />
+              </div>
+            </Card>
+
+            {/* Video Controls */}
+            <Card className="p-4">
+              <div className="flex items-center gap-4">
+                <Button onClick={togglePlayPause} size="icon" variant="outline">
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </Button>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={() => jumpTime(-3)} 
+                    size="sm" 
+                    variant="outline"
+                    className="h-9 px-3"
+                  >
+                    -3s
+                  </Button>
+                  <Button 
+                    onClick={() => jumpTime(3)} 
+                    size="sm" 
+                    variant="outline"
+                    className="h-9 px-3"
+                  >
+                    +3s
+                  </Button>
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="range"
+                    min={0}
+                    max={videoDuration}
+                    step={0.01}
+                    value={currentTime}
+                    onChange={(e) => {
+                      if (videoRef.current) {
+                        videoRef.current.currentTime = parseFloat(e.target.value);
+                      }
+                    }}
+                    className="w-full"
+                  />
+                </div>
+                <span className="text-sm text-muted-foreground min-w-24 text-right">
+                  {currentTime.toFixed(1)}s / {videoDuration.toFixed(1)}s
+                </span>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right: Mask Controls */}
+          <div className="overflow-auto">
+            <MaskControlPanel
+              masks={masks}
+              selectedMaskId={selectedMaskId}
+              videoDuration={videoDuration}
+              currentTime={currentTime}
+              onSelectMask={setSelectedMaskId}
+              onUpdateMask={updateMask}
+              onDeleteMask={deleteMask}
+              onDuplicateMask={duplicateMask}
+              onAddMask={addNewMask}
+              onDeleteAll={deleteAllMasks}
+              onProcess={() => onProcessMasks(masks)}
+            />
+          </div>
         </div>
       </div>
     </div>

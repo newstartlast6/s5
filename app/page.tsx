@@ -1133,6 +1133,15 @@ export default function Home() {
           <MaskTypeSelection onSelect={handleMaskTypeSelect} />
         </div>
       )}
+
+      {/* Mask Editor Overlay */}
+      {maskEditorMode === 'editing' && videoUrl && (
+        <VideoMaskEditor
+          videoUrl={videoUrl}
+          onClose={handleCloseMaskEditor}
+          onProcessMasks={handleProcessMasks}
+        />
+      )}
       
       {!shouldShowSplitView ? (
         <>
@@ -1214,13 +1223,7 @@ export default function Home() {
             </div>
             
             <div className="relative animate-in fade-in slide-in-from-right duration-500">
-              {maskEditorMode === 'editing' && videoUrl ? (
-                <VideoMaskEditor
-                  videoUrl={videoUrl}
-                  onClose={handleCloseMaskEditor}
-                  onProcessMasks={handleProcessMasks}
-                />
-              ) : user && hasJobs ? (
+              {user && hasJobs ? (
                 <JobHistory jobs={jobs} isLoading={isLoadingJobs} onRefresh={fetchJobs} />
               ) : (
                 <DemoComponent />
