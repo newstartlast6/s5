@@ -15,9 +15,18 @@ interface VideoMaskEditorProps {
   onProcessMasks: (masks: Mask[]) => void;
   inlineMode?: boolean;
   isProcessing?: boolean;
+  onRemoveWatermark?: (masks: Mask[]) => Promise<void>;
+  isAuthenticated?: boolean;
 }
 
-export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks, isProcessing = false }: VideoMaskEditorProps) {
+export function VideoMaskEditor({ 
+  videoUrl, 
+  onClose, 
+  onProcessMasks, 
+  isProcessing = false,
+  onRemoveWatermark,
+  isAuthenticated = false
+}: VideoMaskEditorProps) {
   const [masks, setMasks] = useState<Mask[]>([]);
   const [selectedMaskId, setSelectedMaskId] = useState<string | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -177,8 +186,20 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks, isProcessin
       syncDimensions();
     };
 
+    // Throttle timeupdate to improve performance
+    let rafId: number | null = null;
+    let lastUpdateTime = 0;
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
+      if (rafId) return;
+      
+      rafId = requestAnimationFrame(() => {
+        const now = performance.now();
+        if (now - lastUpdateTime >= 50) { // Update at most 20 times per second
+          setCurrentTime(video.currentTime);
+          lastUpdateTime = now;
+        }
+        rafId = null;
+      });
     };
 
     const handlePlay = () => setIsPlaying(true);
@@ -207,6 +228,7 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks, isProcessin
       video.removeEventListener("play", handlePlay);
       video.removeEventListener("pause", handlePause);
       resizeObserver.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [drawCanvas]);
 
@@ -460,10 +482,25 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks, isProcessin
 
   const jumpTime = (seconds: number) => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || videoDuration === 0) return;
+    
+    // Pause video temporarily to prevent stuttering
+    const wasPlaying = !video.paused;
+    if (wasPlaying) {
+      video.pause();
+    }
     
     const newTime = Math.max(0, Math.min(videoDuration, video.currentTime + seconds));
     video.currentTime = newTime;
+    
+    // Resume playing if it was playing before
+    if (wasPlaying) {
+      setTimeout(() => {
+        video.play().catch(() => {
+          // Handle play error silently
+        });
+      }, 100);
+    }
   };
 
   const addNewMask = () => {
@@ -613,7 +650,13 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks, isProcessin
               onDuplicateMask={duplicateMask}
               onAddMask={addNewMask}
               onDeleteAll={deleteAllMasks}
-              onProcess={() => onProcessMasks(masks)}
+              onProcess={async () => {
+                if (onRemoveWatermark) {
+                  await onRemoveWatermark(masks);
+                } else {
+                  onProcessMasks(masks);
+                }
+              }}
               isProcessing={isProcessing}
             />
           </div>

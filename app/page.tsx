@@ -1107,6 +1107,69 @@ export default function Home() {
     });
   }, []);
 
+  const handleRemoveWatermarkFromMaskEditor = useCallback(async (processedMasks: Mask[]) => {
+    // Save masks to state FIRST, before any checks
+    // This ensures user work is preserved even if authentication/payment checks fail
+    setMasks(processedMasks);
+    
+    posthog.capture('watermark_removal_requested_from_mask_editor', {
+      file_name: uploadedFileName,
+      gcs_path: gcsPath,
+      is_authenticated: !!user,
+      mask_count: processedMasks.length,
+    });
+    
+    if (!user) {
+      setShowAuthDialog(true);
+      // Keep editor open so user can authenticate and try again
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/subscription/status');
+      
+      if (!response.ok) {
+        toast.error('Failed to check subscription status');
+        // Keep editor open on error
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        toast.error(data.error);
+        // Keep editor open on error
+        return;
+      }
+
+      if (!data.canProcessVideo) {
+        setShowPricingDialog(true);
+        posthog.capture('free_limit_reached', {
+          free_videos_used: data.freeVideosUsed,
+          has_subscription: data.hasSubscription,
+          context: 'mask_editor',
+        });
+        // Keep editor open so user can upgrade and try again
+        return;
+      }
+
+      // Trigger job creation and only close editor if successful
+      try {
+        await createJobAndTrigger();
+        // Only close mask editor after successful job creation
+        setMaskEditorMode('none');
+      } catch (jobError) {
+        console.error('Job creation failed:', jobError);
+        toast.error('Failed to start processing. Please try again.');
+        // Keep editor open so user can retry
+      }
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+      toast.error('Error checking subscription status');
+      // Keep editor open on error
+    }
+  }, [user, createJobAndTrigger, uploadedFileName, gcsPath]);
+
   const handleCloseMaskEditor = useCallback(() => {
     setMaskEditorMode('none');
     setMasks([]);
@@ -1141,6 +1204,8 @@ export default function Home() {
           onClose={handleCloseMaskEditor}
           onProcessMasks={handleProcessMasks}
           isProcessing={isSubmittingJob}
+          onRemoveWatermark={handleRemoveWatermarkFromMaskEditor}
+          isAuthenticated={!!user}
         />
       )}
       
