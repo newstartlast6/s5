@@ -456,6 +456,14 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
     }
   };
 
+  const jumpTime = (seconds: number) => {
+    const video = videoRef.current;
+    if (!video) return;
+    
+    const newTime = Math.max(0, Math.min(videoDuration, video.currentTime + seconds));
+    video.currentTime = newTime;
+  };
+
   const addNewMask = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -550,6 +558,24 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
                 <Button onClick={togglePlayPause} size="icon" variant="outline">
                   {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 </Button>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={() => jumpTime(-5)} 
+                    size="sm" 
+                    variant="outline"
+                    className="h-9 px-3"
+                  >
+                    -5s
+                  </Button>
+                  <Button 
+                    onClick={() => jumpTime(5)} 
+                    size="sm" 
+                    variant="outline"
+                    className="h-9 px-3"
+                  >
+                    +5s
+                  </Button>
+                </div>
                 <div className="flex-1">
                   <input
                     type="range"
