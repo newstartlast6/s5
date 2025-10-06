@@ -4,6 +4,19 @@
 A Next.js 15 application designed to remove Sora watermarks from videos. It features a modern, dark-themed UI with a split-screen video preview, drag-and-drop file uploads, video validation, and smooth animations. The application integrates Supabase for user authentication and Google Cloud Storage for video handling, aiming to provide a seamless and efficient watermark removal service with a focus on user experience and monetized through a subscription model. Key capabilities include AI-powered detection and smart removal, along with a free tier limit and a $5/month subscription plan.
 
 ## Recent Changes
+- **Oct 6, 2025**: Implemented comprehensive mask editing feature for manual watermark removal
+  - Added mask type selection (Manual/AI) that appears after video upload
+  - Created VideoMaskEditor component with canvas overlay for drawing masks on videos
+  - Implemented mask drawing: Click and drag to create rectangular masks on video
+  - Implemented mask manipulation: Drag to move masks, resize handles on all corners, delete functionality
+  - Created MaskControlPanel below video with mask list showing all masks with properties (X, Y, Width, Height)
+  - Implemented timeline controls: Each mask has start/end time sliders with +3/-3 second adjustment buttons
+  - Added visual feedback: Masks only appear during their active time ranges, selected masks highlight in teal
+  - Integrated responsive canvas sizing with ResizeObserver for proper alignment across viewport changes
+  - Canvas dimensions sync with video container, mask coordinates scale proportionally during resize
+  - Added "Add Mask", "Delete All", and "Remove Watermark" buttons with proper styling
+  - Complete workflow: Upload video → Select mask type → Draw/edit masks → Set durations → Remove watermark
+  - All changes architect-reviewed and tested for code quality, performance, and UX
 - **Oct 4, 2025**: UI/UX improvements for download, layout, and support access
   - Enhanced download button with loading indicator: Shows "Downloading..." with spinner for 1 second when download is initiated, provides immediate visual feedback to users
   - Removed numbered step circles (1, 2, 3) from "How It Works" section for cleaner, more modern appearance
@@ -91,6 +104,7 @@ The application is built with Next.js 15 (App Router), React 19, and styled usin
 - **Authentication System:** Email/password and Google OAuth with toast notifications and loading states.
 - **File Validation:** Enforces limits on size (100MB), duration (30 seconds), and format (MP4, MOV, AVI, WebM).
 - **Video Preview:** Displays uploaded videos with automatic orientation detection.
+- **Mask Editing:** Interactive canvas-based editor for manual watermark removal with mask type selection, draw/move/resize/delete operations, timeline controls with duration sliders, and responsive design that maintains alignment across viewport changes.
 - **Job History:** Card-based list of user's video jobs with status badges and download buttons.
 - **"How It Works" & FAQ:** Informative sections on the landing page explaining features and answering common questions.
 - **Subscription Management:** Free tier limit and a $5/month subscription plan managed via Creem.io.
