@@ -31,36 +31,7 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Initialize video
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleLoadedMetadata = () => {
-      setVideoDuration(video.duration);
-      drawCanvas();
-    };
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
-    };
-
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
-
-    video.addEventListener("loadedmetadata", handleLoadedMetadata);
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("play", handlePlay);
-    video.addEventListener("pause", handlePause);
-
-    return () => {
-      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("play", handlePlay);
-      video.removeEventListener("pause", handlePause);
-    };
-  }, []);
+  const lastCanvasSizeRef = useRef<{ width: number; height: number }>({ width: 0, height: 0 });
 
   // Draw canvas overlay
   const drawCanvas = useCallback(() => {
@@ -127,6 +98,85 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
       ctx.setLineDash([]);
     }
   }, [masks, selectedMaskId, currentTime, isDrawing, drawStart, currentMask]);
+
+  // Initialize video and handle dimension syncing
+  useEffect(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!video || !canvas || !container) return;
+
+    const syncDimensions = () => {
+      const containerRect = container.getBoundingClientRect();
+      const oldWidth = canvas.width;
+      const oldHeight = canvas.height;
+      const newWidth = containerRect.width;
+      const newHeight = containerRect.height;
+      
+      // Update canvas dimensions
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      
+      // Scale masks if dimensions changed significantly
+      if (oldWidth > 0 && oldHeight > 0 && (Math.abs(oldWidth - newWidth) > 1 || Math.abs(oldHeight - newHeight) > 1)) {
+        const scaleX = newWidth / oldWidth;
+        const scaleY = newHeight / oldHeight;
+        
+        setMasks((prevMasks) =>
+          prevMasks.map((mask) => ({
+            ...mask,
+            x: mask.x * scaleX,
+            y: mask.y * scaleY,
+            width: mask.width * scaleX,
+            height: mask.height * scaleY,
+          }))
+        );
+      }
+      
+      // Store new size
+      lastCanvasSizeRef.current = { width: newWidth, height: newHeight };
+      
+      // Redraw canvas
+      drawCanvas();
+    };
+
+    const handleLoadedMetadata = () => {
+      setVideoDuration(video.duration);
+      syncDimensions();
+    };
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+    };
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+
+    // Use ResizeObserver to keep canvas synced with container
+    const resizeObserver = new ResizeObserver(() => {
+      syncDimensions();
+    });
+    resizeObserver.observe(container);
+
+    // Initial sync
+    if (video.readyState >= 2) {
+      setVideoDuration(video.duration);
+      syncDimensions();
+    }
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      resizeObserver.disconnect();
+    };
+  }, [drawCanvas]);
 
   // Redraw canvas on changes
   useEffect(() => {
@@ -427,8 +477,6 @@ export function VideoMaskEditor({ videoUrl, onClose, onProcessMasks }: VideoMask
                 />
                 <canvas
                   ref={canvasRef}
-                  width={containerRef.current?.clientWidth || 1280}
-                  height={containerRef.current?.clientHeight || 720}
                   className="absolute inset-0 w-full h-full"
                   onMouseDown={handleMouseDown}
                   onMouseMove={handleMouseMove}
