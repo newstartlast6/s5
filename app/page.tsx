@@ -10,6 +10,9 @@ import { DemoComponent } from "@/components/DemoComponent";
 import { AuthDialog } from "@/components/AuthDialog";
 import { JobHistory, type VideoJob } from "@/components/JobHistory";
 import PricingDialog from "@/components/PricingDialog";
+import { MaskTypeSelection } from "@/components/MaskTypeSelection";
+import { VideoMaskEditor } from "@/components/VideoMaskEditor";
+import type { Mask } from "@/lib/types/mask";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -605,6 +608,8 @@ export default function Home() {
     hasUnlimitedAccess: boolean;
   } | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<'fast' | 'quality'>('fast');
+  const [maskEditorMode, setMaskEditorMode] = useState<'none' | 'selection' | 'editing'>('none');
+  const [masks, setMasks] = useState<Mask[]>([]);
 
   const fetchSubscriptionStatus = useCallback(async () => {
     try {
@@ -884,6 +889,7 @@ export default function Home() {
           }
           
           setIsProcessing(false);
+          setMaskEditorMode('selection');
         } else {
           throw new Error('Upload failed');
         }
@@ -934,6 +940,8 @@ export default function Home() {
     setGcsPath("");
     setUploadedFileName("");
     setThumbnailUrl("");
+    setMaskEditorMode('none');
+    setMasks([]);
     localStorage.removeItem('videoUrl');
     localStorage.removeItem('gcsPath');
     localStorage.removeItem('uploadedFileName');
@@ -1058,6 +1066,28 @@ export default function Home() {
     }
   }, [user, createJobAndTrigger, uploadedFileName, gcsPath]);
 
+  const handleMaskTypeSelect = useCallback((type: 'manual' | 'ai') => {
+    if (type === 'manual') {
+      setMaskEditorMode('editing');
+    } else {
+      toast.info('AI mask detection coming soon!');
+    }
+  }, []);
+
+  const handleProcessMasks = useCallback((processedMasks: Mask[]) => {
+    setMasks(processedMasks);
+    setMaskEditorMode('none');
+    
+    toast.success(`${processedMasks.length} mask${processedMasks.length !== 1 ? 's' : ''} created successfully!`, {
+      description: 'Click "Remove Watermark" to process your video.',
+    });
+  }, []);
+
+  const handleCloseMaskEditor = useCallback(() => {
+    setMaskEditorMode('none');
+    setMasks([]);
+  }, []);
+
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-background">
@@ -1072,6 +1102,22 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header user={user} onSignOut={handleSignOut} hasActiveSubscription={hasActiveSubscription} subscriptionData={subscriptionData} />
+      
+      {/* Mask Type Selection Overlay */}
+      {maskEditorMode === 'selection' && videoUrl && (
+        <div className="fixed inset-0 bg-background/95 backdrop-blur-sm z-40 overflow-auto flex items-center justify-center">
+          <MaskTypeSelection onSelect={handleMaskTypeSelect} />
+        </div>
+      )}
+
+      {/* Mask Editor Overlay */}
+      {maskEditorMode === 'editing' && videoUrl && (
+        <VideoMaskEditor
+          videoUrl={videoUrl}
+          onClose={handleCloseMaskEditor}
+          onProcessMasks={handleProcessMasks}
+        />
+      )}
       
       {!shouldShowSplitView ? (
         <>
